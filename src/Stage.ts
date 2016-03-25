@@ -1,3 +1,4 @@
+/// <reference path="../dist/paper.d.ts"/>
 class Stages {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;

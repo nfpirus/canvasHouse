@@ -1,19 +1,4 @@
-var MyLine = (function () {
-    function MyLine(x1, y1, x2, y2) {
-        this._path = new Path();
-        this._path.strokeColor = 'black';
-        this._path.add(new Point(x1, y1));
-        this._path.add(new Point(x2, y2));
-    }
-    Object.defineProperty(MyLine.prototype, "color", {
-        set: function (value) {
-            this._path.strokeColor = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return MyLine;
-})();
+/// <reference path="../dist/paper.d.ts"/>
 var Stages = (function () {
     function Stages(_stageContainer) {
         this._stageContainer = _stageContainer;

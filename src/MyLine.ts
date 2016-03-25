@@ -1,3 +1,4 @@
+/// <reference path="../dist/paper.d.ts"/>
 class MyLine {
     private _path: any;
 
