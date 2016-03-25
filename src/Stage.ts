@@ -9,10 +9,16 @@ class Stages {
         this._stageContainer.appendChild(this._canvas);
         this._ctx = this._canvas.getContext('2d');
 
-        this.myCustom();
+        paper.install(window);
+        console.log('ello');
+        paper.setup(this._canvas);
+
+        this.drawLine();
     }
 
-    private myCustom(): void {
-        console.log('ello');
+    private drawLine(): void {
+        const myLine: any = new MyLine(40, 90, 90, 40);
+
+
     }
 }

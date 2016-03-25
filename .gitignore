@@ -2,6 +2,7 @@
 node_modules
 *.map
 .tscache
+.baseDir.ts
 
 # Windows image file caches
 Thumbs.db
