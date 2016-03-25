@@ -1,4 +1,21 @@
 /// <reference path="../dist/paper.d.ts"/>
+var MyLine = (function () {
+    function MyLine(x1, y1, x2, y2) {
+        this._path = new paper.Path();
+        this._path.strokeColor = 'black';
+        this._path.add(new paper.Point(x1, y1));
+        this._path.add(new paper.Point(x2, y2));
+    }
+    Object.defineProperty(MyLine.prototype, "color", {
+        set: function (value) {
+            this._path.strokeColor = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return MyLine;
+})();
+/// <reference path="../dist/paper.d.ts"/>
 var Stages = (function () {
     function Stages(_stageContainer) {
         this._stageContainer = _stageContainer;
@@ -13,7 +30,8 @@ var Stages = (function () {
         this.drawLine();
     }
     Stages.prototype.drawLine = function () {
-        var myLine = new MyLine(40, 90, 90, 40);
+        var myLine1 = new MyLine(40, 90, 80, 40);
+        var myLine2 = new MyLine(10, 90, 40, 40);
     };
     return Stages;
 })();
