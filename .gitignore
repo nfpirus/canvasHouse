@@ -1,3 +1,8 @@
+# My project exception
+node_modules
+*.map
+.tscache
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -5,14 +10,17 @@ ehthumbs.db
 # Folder config file
 Desktop.ini
 
+
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+
 
 # Windows Installer files
 *.cab
 *.msi
 *.msm
 *.msp
+*.map
 
 # Windows shortcuts
 *.lnk
