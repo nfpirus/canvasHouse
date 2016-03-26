@@ -30,8 +30,7 @@ var Stages = (function () {
         this.drawLine();
     }
     Stages.prototype.drawLine = function () {
-        var myLine1 = new MyLine(40, 90, 80, 40);
-        var myLine2 = new MyLine(10, 90, 40, 40);
+        var myLine1 = new MyLine(40, 90, 200, 40);
     };
     return Stages;
 })();
