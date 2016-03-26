@@ -13,14 +13,21 @@ class RenderApi {
     }
 
     public drawOuterWall(shape: IShape): paper.Group {
-        const width: number = 20;   
-        const height: number = Math.sqrt(Math.pow(shape.coord.x1 - shape.coord.x2, 2) + Math.pow(shape.coord.y1 - shape.coord.y2, 2));
-        console.log('height', height);
-        let point: paper.Point = new paper.Point(shape.coord.x2 - shape.coord.x1, shape.coord.y2 - shape.coord.y1);
-        let size: paper.Size = new paper.Size(width, height);
+        const coordDraw: ICoordinates = this.calcCoord(shape);
+        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
+        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+        
+        const width: number = 20;
+        const length: number = point2.getDistance(point1, false);
 
-        let rect: paper.Path = paper.Path.Rectangle(point, size);
-        rect.strokeColor = 'red';
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.rotate(vect.angle - 90, point1);
+        rect.strokeColor = 'black';
+        rect.fillColor = new paper.Color(0.6, 0.64, 0.47, 0.5);
+        
 
         const result: paper.Group = new paper.Group(rect);
         return result;

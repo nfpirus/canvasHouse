@@ -42,13 +42,18 @@ var RenderApi = (function () {
         return shape.coord;
     };
     RenderApi.prototype.drawOuterWall = function (shape) {
+        var coordDraw = this.calcCoord(shape);
+        var point1 = new paper.Point(coordDraw.x1, coordDraw.y1);
+        var point2 = new paper.Point(coordDraw.x2, coordDraw.y2);
+        var vect = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
         var width = 20;
-        var height = Math.sqrt(Math.pow(shape.coord.x1 - shape.coord.x2, 2) + Math.pow(shape.coord.y1 - shape.coord.y2, 2));
-        console.log('height', height);
-        var point = new paper.Point(shape.coord.x2 - shape.coord.x1, shape.coord.y2 - shape.coord.y1);
-        var size = new paper.Size(width, height);
-        var rect = paper.Path.Rectangle(point, size);
-        rect.strokeColor = 'red';
+        var length = point2.getDistance(point1, false);
+        var size = new paper.Size(width, length);
+        var rect = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.rotate(vect.angle - 90, point1);
+        rect.strokeColor = 'black';
+        rect.fillColor = new paper.Color(0.6, 0.64, 0.47, 0.5);
         var result = new paper.Group(rect);
         return result;
     };
