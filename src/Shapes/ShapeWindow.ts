@@ -1,4 +1,4 @@
-/// <reference path="../dist/paper.d.ts"/>
+/// <reference path="../../dist/paper.d.ts"/>
 class ShapeWindow implements IShape {
     public type: number;
     public coord: ICoordinates;
@@ -9,7 +9,5 @@ class ShapeWindow implements IShape {
 
     constructor(coordinates: ICoordinates) {
         this.coord = coordinates;
-        this.renderObject = RenderApi.drawWindow();
     }
-
 }

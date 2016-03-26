@@ -1,22 +1,5 @@
 /// <reference path="../dist/paper.d.ts"/>
 /// <reference path="../dist/paper.d.ts"/>
-var MyLine = (function () {
-    function MyLine(x1, y1, x2, y2) {
-        this._path = new paper.Path();
-        this._path.strokeColor = 'black';
-        this._path.add(new paper.Point(x1, y1));
-        this._path.add(new paper.Point(x2, y2));
-    }
-    Object.defineProperty(MyLine.prototype, "color", {
-        set: function (value) {
-            this._path.strokeColor = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return MyLine;
-})();
-/// <reference path="../dist/paper.d.ts"/>
 var Render = (function () {
     function Render(stageContainer) {
         this._canvas = document.createElement('canvas');
@@ -27,13 +10,9 @@ var Render = (function () {
         paper.install(window);
         paper.setup(this._canvas);
     }
-    Render.prototype.render = function (shape) {
-        if (shape.type === 5) {
-            console.log('create window');
-            shape.renderObject = RenderApi.drawWindow();
-        }
-    };
-    Render.prototype.zoomIn = function () {
+    Render.prototype.calcCoord = function (coord) {
+        var result = coord;
+        return result;
     };
     return Render;
 })();
@@ -41,26 +20,60 @@ var Render = (function () {
 var RenderApi = (function () {
     function RenderApi() {
     }
-    RenderApi.drawWindow = function () {
+    RenderApi.drawOuterWall = function (coordDraw) {
+        var result = new paper.Group();
+        return result;
+    };
+    RenderApi.drawInnerWall = function (coordDraw) {
+        var result = new paper.Group();
+        return result;
+    };
+    RenderApi.drawColumn = function (coordDraw) {
+        var result = new paper.Group();
+        return result;
+    };
+    RenderApi.drawPartition = function (coordDraw) {
+        var result = new paper.Group();
+        return result;
+    };
+    RenderApi.drawWindow = function (coordDraw) {
+        var path = new paper.Path();
+        path.strokeColor = 'black';
+        path.add(new paper.Point(coordDraw.x1, coordDraw.y1));
+        path.add(new paper.Point(coordDraw.x2, coordDraw.y2));
+        var result = new paper.Group(path);
+        return result;
+    };
+    RenderApi.drawDoor = function (coordDraw) {
+        var result = new paper.Group();
+        return result;
+    };
+    RenderApi.drawDoorWay = function (coordDraw) {
         var result = new paper.Group();
         return result;
     };
     return RenderApi;
 })();
-/// <reference path="../dist/paper.d.ts"/>
+/// <reference path="../../dist/paper.d.ts"/>
 var ShapeWindow = (function () {
     function ShapeWindow(coordinates) {
         this.coord = coordinates;
-        this.renderObject = RenderApi.drawWindow();
     }
     return ShapeWindow;
 })();
 /// <reference path="../dist/paper.d.ts"/>
+/// <reference path="Shapes/ShapeWindow.ts"/>
 var Stages = (function () {
     function Stages(stageContainer) {
         this._render = new Render(stageContainer);
         this._shapes = new Array;
-        var myLine = new MyLine(40, 90, 90, 40);
+        var position = {
+            x1: 10,
+            y1: 30,
+            x2: 180,
+            y2: 120
+        };
+        this.createShape(5, position);
     }
     Stages.prototype.createShape = function (type, position) {
         var newShape;
@@ -68,7 +81,8 @@ var Stages = (function () {
             newShape = new ShapeWindow(position);
         }
         this._shapes.push(newShape);
-        this._render.render(newShape);
+        newShape.coordDraw = this._render.calcCoord(position);
+        newShape.renderObject = RenderApi.drawWindow(newShape.coordDraw);
     };
     Stages.prototype.deliteShape = function (shape) {
         var item = this._shapes.indexOf(shape);
@@ -78,6 +92,20 @@ var Stages = (function () {
         else {
             console.log('ex: deliteShape not found shape');
         }
+    };
+    Stages.prototype.zoomIn = function () {
+        this._render.zoom++;
+        this.reDraw();
+    };
+    Stages.prototype.zoomOut = function () {
+        this._render.zoom--;
+        this.reDraw();
+    };
+    Stages.prototype.reDraw = function () {
+        var _this = this;
+        this._shapes.forEach(function (item) {
+            item.coordDraw = _this._render.calcCoord(item.coord);
+        });
     };
     return Stages;
 })();

@@ -33,10 +33,9 @@
     <TypeScriptCompile Include="dist\paper.d.ts" />
     <TypeScriptCompile Include="src\ICoordinates.ts" />
     <TypeScriptCompile Include="src\IShape.ts" />
-    <TypeScriptCompile Include="src\MyLine.ts" />
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
-    <TypeScriptCompile Include="src\ShapeWindow.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeWindow.ts" />
     <TypeScriptCompile Include="src\Stage.ts" />
   </ItemGroup>
   <ItemGroup>

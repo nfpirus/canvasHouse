@@ -3,7 +3,7 @@
 class Render {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;
-    private zoom: number;
+    public zoom: number;
     private _shapes: Array<IShape>;
 
     constructor(stageContainer: HTMLDivElement) {
@@ -19,14 +19,9 @@ class Render {
         paper.setup(this._canvas);
     }
 
-    public render(shape: IShape): void {
-        if (shape.type === 5) {
-            console.log('create window');
-            shape.renderObject = RenderApi.drawWindow();
-        }
-    }
-
-    public zoomIn(): void {
-     //   Render.
+    public calcCoord(coord: ICoordinates): ICoordinates {
+        // Realize on zoom
+        const result: ICoordinates = coord;
+        return result;
     }
 }
