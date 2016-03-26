@@ -1,4 +1,4 @@
-﻿/// <reference path="../dist/paper.d.ts"/>
+/// <reference path="../dist/paper.d.ts"/>
 /// <reference path="Shapes/ShapeWindow.ts"/>
 
 class Stages {
