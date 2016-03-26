@@ -1,25 +1,29 @@
 /// <reference path="../dist/paper.d.ts"/>
 class Stages {
-    private _canvas: HTMLCanvasElement;
-    private _ctx: CanvasRenderingContext2D;
+    private _shapes: Array<IShape>;
+    private _render: Render;
 
-    constructor(private _stageContainer: HTMLDivElement) {
-        this._canvas = document.createElement('canvas');
-        this._canvas.width = window.innerWidth - 20;
-        this._canvas.height = window.innerHeight - 20;
-        this._stageContainer.appendChild(this._canvas);
-        this._ctx = this._canvas.getContext('2d');
+    constructor(stageContainer: HTMLDivElement) {
+        this._render = new Render(stageContainer);
+        this._shapes = new Array;
+   }
 
-        paper.install(window);
-        console.log('ello');
-        paper.setup(this._canvas);
+    private CreateShape(type: number, position: ICoordinates): void {
+        let newShape: IShape;
+        if (type === 5) {
+            newShape = new shapeWindow(position);
+        }
 
-        this.drawLine();
+        this._shapes.push(newShape);
+        this._render.render(newShape);
     }
 
-    private drawLine(): void {
-        const myLine: any = new MyLine(40, 90, 90, 40);
-
-
+    private deliteShape(shape: IShape): void {
+        const item: number = this._shapes.indexOf(shape);
+        if (item) {
+            this._shapes.splice(item, 1);
+        } else {
+            console.log('ex: deliteShape not found shape');
+        }
     }
 }
