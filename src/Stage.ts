@@ -18,8 +18,7 @@ class Stages {
     }
 
     private drawLine(): void {
-        const myLine1: any = new MyLine(40, 90, 80, 40);
-        const myLine2: any = new MyLine(10, 90, 40, 40);
+        const myLine1: any = new MyLine(40, 90, 200, 40);
 
 
     }
