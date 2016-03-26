@@ -2,6 +2,8 @@
 /// <reference path="../dist/paper.d.ts"/>
 var Render = (function () {
     function Render(stageContainer, shapes) {
+        this._zoom = 0;
+        this._renderApi = new RenderApi(this._zoom);
         this._shapes = shapes;
         this._canvas = document.createElement('canvas');
         this._canvas.width = window.innerWidth - 20;
@@ -10,49 +12,61 @@ var Render = (function () {
         this._ctx = this._canvas.getContext('2d');
         paper.setup(this._canvas);
     }
-    Render.prototype.calcCoord = function (shape) {
-        shape.coordDraw = shape.coord;
-    };
+    Object.defineProperty(Render.prototype, "zoom", {
+        set: function (value) {
+            this._zoom = value;
+            this._renderApi.zoom = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Render.prototype, "renderApi", {
+        get: function () {
+            return this._renderApi;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Render.prototype.reDraw = function () {
         this._shapes.forEach(function (item) {
         });
-    };
-    Render.prototype.drawShape = function (shape) {
-        if (shape.type === 5) {
-            this.calcCoord(shape);
-            shape.renderObject = RenderApi.drawWindow(shape);
-        }
     };
     return Render;
 })();
 /// <reference path="../dist/paper.d.ts"/>
 var RenderApi = (function () {
-    function RenderApi() {
+    function RenderApi(zoom) {
+        this.zoom = zoom;
     }
-    RenderApi.drawOuterWall = function (shape) {
+    RenderApi.prototype.calcCoord = function (shape) {
+        return shape.coord;
+    };
+    RenderApi.prototype.drawOuterWall = function (shape) {
         var width = 20;
         var height = Math.sqrt(Math.pow(shape.coord.x1 - shape.coord.x2, 2) + Math.pow(shape.coord.y1 - shape.coord.y2, 2));
-        var result = new paper.Group();
+        console.log('height', height);
         var point = new paper.Point(shape.coord.x2 - shape.coord.x1, shape.coord.y2 - shape.coord.y1);
         var size = new paper.Size(width, height);
         var rect = paper.Path.Rectangle(point, size);
         rect.strokeColor = 'red';
+        var result = new paper.Group(rect);
         return result;
     };
-    RenderApi.drawInnerWall = function (shape) {
+    RenderApi.prototype.drawInnerWall = function (shape) {
         var result = new paper.Group();
         return result;
     };
-    RenderApi.drawColumn = function (shape) {
+    RenderApi.prototype.drawColumn = function (shape) {
         var result = new paper.Group();
         return result;
     };
-    RenderApi.drawPartition = function (shape) {
+    RenderApi.prototype.drawPartition = function (shape) {
         var result = new paper.Group();
         return result;
     };
-    RenderApi.drawWindow = function (shape) {
-        var coordDraw = shape.coordDraw;
+    RenderApi.prototype.drawWindow = function (shape) {
+        var coordDraw = this.calcCoord(shape);
+        console.log('coordDraw', coordDraw);
         var path = new paper.Path();
         path.strokeColor = 'black';
         path.add(new paper.Point(coordDraw.x1, coordDraw.y1));
@@ -60,11 +74,11 @@ var RenderApi = (function () {
         var result = new paper.Group(path);
         return result;
     };
-    RenderApi.drawDoor = function (shape) {
+    RenderApi.prototype.drawDoor = function (shape) {
         var result = new paper.Group();
         return result;
     };
-    RenderApi.drawDoorWay = function (shape) {
+    RenderApi.prototype.drawDoorWay = function (shape) {
         var result = new paper.Group();
         return result;
     };
@@ -77,8 +91,17 @@ var ShapeWindow = (function () {
     }
     return ShapeWindow;
 })();
+/// <reference path="../../dist/paper.d.ts"/>
+var ShapeOuterWall = (function () {
+    function ShapeOuterWall(coordinates) {
+        this.type = 1;
+        this.coord = coordinates;
+    }
+    return ShapeOuterWall;
+})();
 /// <reference path="../dist/paper.d.ts"/>
 /// <reference path="Shapes/ShapeWindow.ts"/>
+/// <reference path="Shapes/ShapeOuterWall.ts"/>
 var Stages = (function () {
     function Stages(stageContainer) {
         this._shapes = new Array;
@@ -96,13 +119,13 @@ var Stages = (function () {
         var newShape;
         if (type === 1) {
             newShape = new ShapeOuterWall(position);
-            RenderApi.drawOuterWall(newShape);
+            this._render.renderApi.drawOuterWall(newShape);
         }
         if (type === 5) {
             newShape = new ShapeWindow(position);
+            this._render.renderApi.drawWindow(newShape);
         }
         this._shapes.push(newShape);
-        this._render.drawShape(newShape);
     };
     Stages.prototype.deleteShape = function (shape) {
         var item = this._shapes.indexOf(shape);
@@ -116,17 +139,10 @@ var Stages = (function () {
     };
     Stages.prototype.zoomIn = function () {
         this._render.zoom++;
-        this.reDraw();
+        this._render.reDraw();
     };
     Stages.prototype.zoomOut = function () {
         this._render.zoom--;
-        this.reDraw();
-    };
-    Stages.prototype.reDraw = function () {
-        var _this = this;
-        this._shapes.forEach(function (item) {
-            _this._render.calcCoord(item);
-        });
         this._render.reDraw();
     };
     return Stages;

@@ -3,10 +3,21 @@
 class Render {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;
-    public zoom: number;
+    private _zoom: number = 0;
     private _shapes: Array<IShape>;
+    private _renderApi: RenderApi;
+
+    public set zoom(value: number) {
+        this._zoom = value;
+        this._renderApi.zoom = value;
+    }
+
+    public get renderApi(): RenderApi {
+        return this._renderApi;
+    }
 
     constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {
+        this._renderApi = new RenderApi(this._zoom);
         this._shapes = shapes;
         this._canvas = document.createElement('canvas');
         this._canvas.width = window.innerWidth - 20;
@@ -18,12 +29,6 @@ class Render {
         paper.setup(this._canvas);
     }
 
-    public calcCoord(shape: IShape): void {
-        // Realize o
-        shape.coordDraw = shape.coord;
-    }
-
-
     public reDraw(): void {
         this._shapes.forEach((item: IShape) => {
             // Realize
@@ -31,12 +36,5 @@ class Render {
           // item.renderObject.scale();
         });
         // Realize
-    }
-
-    public drawShape(shape: IShape): void {
-        if (shape.type === 5) {
-            this.calcCoord(shape);
-            shape.renderObject = RenderApi.drawWindow(shape);
-        }
     }
 }
