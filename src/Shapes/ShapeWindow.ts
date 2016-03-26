@@ -2,7 +2,6 @@
 class ShapeWindow implements IShape {
     public type: number;
     public coord: ICoordinates;
-    public coordDraw: ICoordinates;
     public childrens: Array<IShape>;
     public valid: boolean;
     public renderObject: paper.Group;
