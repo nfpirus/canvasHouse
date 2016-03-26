@@ -1,9 +1,13 @@
 # My project exception
 node_modules
+script/script.js
+src/*.js
+obj
 *.map
 .tscache
 .baseDir.ts
 .tmp.txt
+.vs
 
 # Windows image file caches
 Thumbs.db

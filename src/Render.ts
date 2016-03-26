@@ -27,6 +27,6 @@ class Render {
     }
 
     public zoomIn(): void {
-        Render.
+     //   Render.
     }
 }

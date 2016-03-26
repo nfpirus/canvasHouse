@@ -1,4 +1,4 @@
-/// <reference path="../dist/paper.d.ts"/>
+﻿/// <reference path="../dist/paper.d.ts"/>
 class Stages {
     private _shapes: Array<IShape>;
     private _render: Render;
@@ -6,12 +6,13 @@ class Stages {
     constructor(stageContainer: HTMLDivElement) {
         this._render = new Render(stageContainer);
         this._shapes = new Array;
-   }
+        const myLine: any = new MyLine(40, 90, 90, 40);
+    }
 
-    private CreateShape(type: number, position: ICoordinates): void {
+    private createShape(type: number, position: ICoordinates): void {
         let newShape: IShape;
         if (type === 5) {
-            newShape = new shapeWindow(position);
+            newShape = new ShapeWindow(position);
         }
 
         this._shapes.push(newShape);

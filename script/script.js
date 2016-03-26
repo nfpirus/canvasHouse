@@ -1,4 +1,5 @@
 /// <reference path="../dist/paper.d.ts"/>
+/// <reference path="../dist/paper.d.ts"/>
 var MyLine = (function () {
     function MyLine(x1, y1, x2, y2) {
         this._path = new paper.Path();
@@ -33,8 +34,6 @@ var Render = (function () {
         }
     };
     Render.prototype.zoomIn = function () {
-        Render.
-        ;
     };
     return Render;
 })();
@@ -48,23 +47,25 @@ var RenderApi = (function () {
     };
     return RenderApi;
 })();
-var shapeWindow = (function () {
-    function shapeWindow(coordinates) {
-        this.coordinates = coordinates;
+/// <reference path="../dist/paper.d.ts"/>
+var ShapeWindow = (function () {
+    function ShapeWindow(coordinates) {
+        this.coord = coordinates;
         this.renderObject = RenderApi.drawWindow();
     }
-    return shapeWindow;
+    return ShapeWindow;
 })();
 /// <reference path="../dist/paper.d.ts"/>
 var Stages = (function () {
     function Stages(stageContainer) {
         this._render = new Render(stageContainer);
         this._shapes = new Array;
+        var myLine = new MyLine(40, 90, 90, 40);
     }
-    Stages.prototype.CreateShape = function (type, position) {
+    Stages.prototype.createShape = function (type, position) {
         var newShape;
         if (type === 5) {
-            newShape = new shapeWindow(position);
+            newShape = new ShapeWindow(position);
         }
         this._shapes.push(newShape);
         this._render.render(newShape);

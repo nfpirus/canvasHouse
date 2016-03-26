@@ -1,12 +1,14 @@
-class shapeWindow implements IShape {
+/// <reference path="../dist/paper.d.ts"/>
+class ShapeWindow implements IShape {
     public type: number;
-    public coordinates: ICoordinates;
+    public coord: ICoordinates;
+    public coordDraw: ICoordinates;
     public childrens: Array<IShape>;
     public valid: boolean;
     public renderObject: paper.Group;
 
     constructor(coordinates: ICoordinates) {
-        this.coordinates = coordinates;
+        this.coord = coordinates;
         this.renderObject = RenderApi.drawWindow();
     }
 
