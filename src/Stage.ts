@@ -24,10 +24,10 @@ class Stages {
         // Realize
         if (type === 5) {
             newShape = new ShapeWindow(position);
+            this._render.renderApi.drawWindow(newShape);
         }
 
         this._shapes.push(newShape);
-        this._render.drawShape(newShape);
     }
 
     private deleteShape(shape: IShape): void {
@@ -43,18 +43,11 @@ class Stages {
 
     public zoomIn(): void {
         this._render.zoom++;
-        this.reDraw();
+        this._render.reDraw();
     }
 
     public zoomOut(): void {
         this._render.zoom--;
-        this.reDraw();
-    }
-
-    public reDraw(): void {
-        this._shapes.forEach((item: IShape) => {
-            this._render.calcCoord(item);
-        });
         this._render.reDraw();
     }
 }

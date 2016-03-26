@@ -1,34 +1,44 @@
 /// <reference path="../dist/paper.d.ts"/>
 
 class RenderApi {
+    public zoom: number;
 
-    public static drawOuterWall(shape: IShape): paper.Group {
+    constructor(zoom: number) {
+        this.zoom = zoom;
+    }
+
+    public calcCoord(shape: IShape): ICoordinates {
+        // Realize o
+        return shape.coord;
+    }
+
+    public drawOuterWall(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawInnerWall(shape: IShape): paper.Group {
+    public drawInnerWall(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawColumn(shape: IShape): paper.Group {
+    public drawColumn(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawPartition(shape: IShape): paper.Group {
+    public drawPartition(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawWindow(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coordDraw;
-
+    public drawWindow(shape: IShape): paper.Group {
+        const coordDraw: ICoordinates = this.calcCoord(shape);
+        console.log('coordDraw', coordDraw);
         const path = new paper.Path();
         path.strokeColor = 'black';
         path.add(new paper.Point(coordDraw.x1, coordDraw.y1));
@@ -39,13 +49,13 @@ class RenderApi {
         return result;
     }
 
-    public static drawDoor(shape: IShape): paper.Group {
+    public drawDoor(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawDoorWay(shape: IShape): paper.Group {
+    public drawDoorWay(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
