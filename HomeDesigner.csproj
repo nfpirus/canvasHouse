@@ -35,6 +35,7 @@
     <TypeScriptCompile Include="src\IShape.ts" />
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeOuterWall.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeWindow.ts" />
     <TypeScriptCompile Include="src\Stage.ts" />
   </ItemGroup>
@@ -59,7 +60,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>8714</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

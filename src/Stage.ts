@@ -17,13 +17,19 @@ class Stages {
             y2: 120
         };
         this.createShape(5, position);
+
+        this.createShape(1, position);
     }
 
     private createShape(type: number, position: ICoordinates): void {
         let newShape: IShape;
         // Realize
+        if (type === 1) {
+            newShape = new ShapeOuterWall(position);
+            RenderApi.drawOuterWall(newShape);
+        }
         if (type === 5) {
-            newShape = new ShapeWindow(position);
+            newShape = new ShapeWindow(position);            
         }
 
         this._shapes.push(newShape);
