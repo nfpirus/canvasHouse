@@ -6,8 +6,9 @@ class Stages {
     private _render: Render;
 
     constructor(stageContainer: HTMLDivElement) {
-        this._render = new Render(stageContainer);
+        
         this._shapes = new Array;
+        this._render = new Render(stageContainer, this._shapes);
 
         const position: ICoordinates = {
             x1: 10,
@@ -25,15 +26,15 @@ class Stages {
             newShape = new ShapeWindow(position);
         }
 
-
         this._shapes.push(newShape);
-        newShape.coordDraw = this._render.calcCoord(position);
-        newShape.renderObject = RenderApi.drawWindow(newShape.coordDraw);
+        this._render.drawShape(newShape);
     }
 
-    private deliteShape(shape: IShape): void {
+    private deleteShape(shape: IShape): void {
         const item: number = this._shapes.indexOf(shape);
+        // Realize UnDraw Element;
         if (item) {
+            shape.renderObject.remove();
             this._shapes.splice(item, 1);
         } else {
             console.log('ex: deliteShape not found shape');
@@ -52,11 +53,8 @@ class Stages {
 
     public reDraw(): void {
         this._shapes.forEach((item: IShape) => {
-            // Realize
-            item.coordDraw = this._render.calcCoord(item.coord);
-            // item.renderObject.position()
-            // item.renderObject.scale();
+            this._render.calcCoord(item);
         });
-        // Realize
+        this._render.reDraw();
     }
 }

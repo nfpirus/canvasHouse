@@ -6,8 +6,8 @@ class Render {
     public zoom: number;
     private _shapes: Array<IShape>;
 
-    constructor(stageContainer: HTMLDivElement) {
-
+    constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {
+        this._shapes = shapes;
         this._canvas = document.createElement('canvas');
         this._canvas.width = window.innerWidth - 20;
         this._canvas.height = window.innerHeight - 20;
@@ -15,13 +15,28 @@ class Render {
 
         this._ctx = this._canvas.getContext('2d');
 
-        paper.install(window);
         paper.setup(this._canvas);
     }
 
-    public calcCoord(coord: ICoordinates): ICoordinates {
-        // Realize on zoom
-        const result: ICoordinates = coord;
-        return result;
+    public calcCoord(shape: IShape): void {
+        // Realize o
+        shape.coordDraw = shape.coord;
+    }
+
+
+    public reDraw(): void {
+        this._shapes.forEach((item: IShape) => {
+            // Realize
+          //  item.renderObject.position();
+          // item.renderObject.scale();
+        });
+        // Realize
+    }
+
+    public drawShape(shape: IShape): void {
+        if (shape.type === 5) {
+            this.calcCoord(shape);
+            shape.renderObject = RenderApi.drawWindow(shape);
+        }
     }
 }

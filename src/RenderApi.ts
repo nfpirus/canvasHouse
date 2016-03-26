@@ -2,32 +2,33 @@
 
 class RenderApi {
 
-    public static drawOuterWall(coordDraw: ICoordinates): paper.Group {
+    public static drawOuterWall(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawInnerWall(coordDraw: ICoordinates): paper.Group {
+    public static drawInnerWall(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawColumn(coordDraw: ICoordinates): paper.Group {
+    public static drawColumn(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawPartition(coordDraw: ICoordinates): paper.Group {
+    public static drawPartition(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawWindow(coordDraw: ICoordinates): paper.Group {
-        
+    public static drawWindow(shape: IShape): paper.Group {
+        const coordDraw: ICoordinates = shape.coordDraw;
+
         const path = new paper.Path();
         path.strokeColor = 'black';
         path.add(new paper.Point(coordDraw.x1, coordDraw.y1));
@@ -38,13 +39,13 @@ class RenderApi {
         return result;
     }
 
-    public static drawDoor(coordDraw: ICoordinates): paper.Group {
+    public static drawDoor(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
     }
 
-    public static drawDoorWay(coordDraw: ICoordinates): paper.Group {
+    public static drawDoorWay(shape: IShape): paper.Group {
         const result: paper.Group = new paper.Group();
         // Realize
         return result;
