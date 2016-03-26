@@ -7,8 +7,7 @@ module.exports = function (grunt) {
             dev: {
                 src: ["src/*.ts"],          // The source typescript files, http://gruntjs.com/configuring-tasks#files
                 out: 'script/script.js',             // If specified, generate an out.js file which is the merged js file
-              /*Task "watch" cause the troubles with compiling in VS*/
-              //watch: 'src'                  // If specified, watches this directory for changes, and re-runs the current target
+                watch: 'src'                  // If specified, watches this directory for changes, and re-runs the current target
             }
         }
     });
