@@ -35,7 +35,9 @@
     <TypeScriptCompile Include="src\IShape.ts" />
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeInnerWall.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeOuterWall.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapePartition.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeWindow.ts" />
     <TypeScriptCompile Include="src\Stage.ts" />
   </ItemGroup>

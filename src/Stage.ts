@@ -1,6 +1,8 @@
 /// <reference path="../dist/paper.d.ts"/>
 /// <reference path="Shapes/ShapeWindow.ts"/>
 /// <reference path="Shapes/ShapeOuterWall.ts"/>
+/// <reference path="Shapes/ShapeInnerWall.ts"/>
+/// <reference path="Shapes/ShapePartition.ts"/>
 class Stages {
     private _shapes: Array<IShape>;
     private _render: Render;
@@ -10,15 +12,40 @@ class Stages {
         this._shapes = new Array;
         this._render = new Render(stageContainer, this._shapes);
 
-        const position: ICoordinates = {
+        const position1: ICoordinates = {
             x1: 10,
             y1: 30,
             x2: 180,
             y2: 120
         };
-        this.createShape(5, position);
-
-        this.createShape(1, position);
+        const position2: ICoordinates = {
+            x1: 70,
+            y1: 200,
+            x2: 90,
+            y2: 160
+        };
+        const position3: ICoordinates = {
+            x1: 110,
+            y1: 40,
+            x2: 160,
+            y2: 30
+        };
+        const position4: ICoordinates = {
+            x1: 222,
+            y1: 200,
+            x2: 320,
+            y2: 160
+        };
+        const position5: ICoordinates = {
+            x1: 222,
+            y1: 30,
+            x2: 320,
+            y2: 50
+        };
+        this.createShape(1, position1);
+        this.createShape(2, position2);
+        this.createShape(4, position4);
+        this.createShape(5, position5);
     }
 
     private createShape(type: number, position: ICoordinates): void {
@@ -27,6 +54,14 @@ class Stages {
         if (type === 1) {
             newShape = new ShapeOuterWall(position);
             this._render.renderApi.drawOuterWall(newShape);
+        }
+        if (type === 2) {
+            newShape = new ShapeInnerWall(position);
+            this._render.renderApi.drawInnerWall(newShape);
+        }
+        if (type === 4) {
+            newShape = new ShapePartition(position);
+            this._render.renderApi.drawPartition(newShape);
         }
         if (type === 5) {
             newShape = new ShapeWindow(position);
