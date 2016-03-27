@@ -7,6 +7,12 @@ class RenderApi {
         this.zoom = zoom;
     }
 
+    public getPosition(shape: IShape): paper.Point {
+        const result: paper.Point = new paper.Point(0,0);
+        // Realize o
+        return result;
+    }
+
     public calcCoord(shape: IShape): ICoordinates {
         // Realize o
         return shape.coord;

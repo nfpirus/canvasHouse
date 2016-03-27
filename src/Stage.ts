@@ -24,7 +24,8 @@ class Stages {
         // Realize
         if (type === 5) {
             newShape = new ShapeWindow(position);
-            this._render.renderApi.drawWindow(newShape);
+            newShape.type = type;
+            newShape.renderObject = this._render.renderApi.drawWindow(newShape);
         }
 
         this._shapes.push(newShape);
@@ -42,12 +43,12 @@ class Stages {
     }
 
     public zoomIn(): void {
-        this._render.zoom++;
+        this._render.zoom = 2;
         this._render.reDraw();
     }
 
     public zoomOut(): void {
-        this._render.zoom--;
+        this._render.zoom = 0.5;
         this._render.reDraw();
     }
 }
