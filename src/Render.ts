@@ -12,6 +12,10 @@ class Render {
         this._renderApi.zoom = value;
     }
 
+    public get zoom(): number {
+        return this._zoom;
+    }
+
     public get renderApi(): RenderApi {
         return this._renderApi;
     }
@@ -31,9 +35,8 @@ class Render {
 
     public reDraw(): void {
         this._shapes.forEach((item: IShape) => {
-            // Realize
-          //  item.renderObject.position();
-          // item.renderObject.scale();
+            item.renderObject.position = new paper.Point(this._renderApi.getPosition(item));
+            item.renderObject.scale(this._renderApi.zoom);
         });
         // Realize
     }
