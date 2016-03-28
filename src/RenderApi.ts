@@ -74,9 +74,39 @@ class RenderApi {
         return result;
     }
 
+    /**
+     * this function creates Column graphics at point1, with size 20x20 px. 
+     * point2 sets the rotation
+     * @param shape
+     */
     public drawColumn(shape: IShape): paper.Group {
-        const result: paper.Group = new paper.Group();
-        // Realize
+        const coordDraw: ICoordinates = this.calcCoord(shape);
+        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
+        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+
+        const width: number = 20;
+        const length: number = 20;
+
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = new paper.Color(0.56, 0.66, 0.64, 0.5);
+
+        let text: paper.TextItem = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'Column';
+
+        const result: paper.Group = new paper.Group([rect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
+
         return result;
     }
 
@@ -113,26 +143,110 @@ class RenderApi {
 
     public drawWindow(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = this.calcCoord(shape);
-        console.log('coordDraw', coordDraw);
-        const path = new paper.Path();
-        path.strokeColor = 'black';
-        path.add(new paper.Point(coordDraw.x1, coordDraw.y1));
-        path.add(new paper.Point(coordDraw.x2, coordDraw.y2));
+        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
+        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const result: paper.Group = new paper.Group(path);
-        // Realize
+        const width: number = 20;
+        const smallwidth: number = 8;
+        const length: number = point2.getDistance(point1, false);
+
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'white';
+
+        size = new paper.Size(smallwidth, length);
+        let smallRect: paper.Path = paper.Path.Rectangle(point1, size);
+        smallRect.position.x -= smallwidth / 2;
+        smallRect.strokeColor = 'black';
+        smallRect.name = 'smallrect';
+        smallRect.fillColor = new paper.Color(0.44, 0.62, 0.80, 0.5);
+
+        let text: paper.TextItem = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'Window';
+
+        const result: paper.Group = new paper.Group([rect, smallRect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
+
         return result;
     }
 
     public drawDoor(shape: IShape): paper.Group {
-        const result: paper.Group = new paper.Group();
-        // Realize
+        const coordDraw: ICoordinates = this.calcCoord(shape);
+        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
+        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+
+        const width: number = 20;
+        const smallwidth: number = 8;
+        const length: number = point2.getDistance(point1, false);
+
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'white';
+
+        size = new paper.Size(smallwidth, length);
+        let smallRect: paper.Path = paper.Path.Rectangle(point1, size);
+        smallRect.position.x -= smallwidth / 2;
+        smallRect.strokeColor = 'black';
+        smallRect.name = 'smallrect';
+        smallRect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
+
+        let text: paper.TextItem = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'Door';
+
+        const result: paper.Group = new paper.Group([rect, smallRect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
+
         return result;
     }
 
     public drawDoorWay(shape: IShape): paper.Group {
-        const result: paper.Group = new paper.Group();
-        // Realize
+        const coordDraw: ICoordinates = this.calcCoord(shape);
+        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
+        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+
+        const width: number = 20;
+        const length: number = point2.getDistance(point1, false);
+
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'white';
+
+        let text: paper.TextItem = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'DoorWay'
+
+        const result: paper.Group = new paper.Group([rect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
+
         return result;
     }
 }

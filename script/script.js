@@ -92,7 +92,28 @@ var RenderApi = (function () {
         return result;
     };
     RenderApi.prototype.drawColumn = function (shape) {
-        var result = new paper.Group();
+        var coordDraw = this.calcCoord(shape);
+        var point1 = new paper.Point(coordDraw.x1, coordDraw.y1);
+        var point2 = new paper.Point(coordDraw.x2, coordDraw.y2);
+        var vect = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+        var width = 20;
+        var length = 20;
+        var size = new paper.Size(width, length);
+        var rect = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = new paper.Color(0.56, 0.66, 0.64, 0.5);
+        var text = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'Column';
+        var result = new paper.Group([rect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
         return result;
     };
     RenderApi.prototype.drawPartition = function (shape) {
@@ -122,30 +143,94 @@ var RenderApi = (function () {
     };
     RenderApi.prototype.drawWindow = function (shape) {
         var coordDraw = this.calcCoord(shape);
-        console.log('coordDraw', coordDraw);
-        var path = new paper.Path();
-        path.strokeColor = 'black';
-        path.add(new paper.Point(coordDraw.x1, coordDraw.y1));
-        path.add(new paper.Point(coordDraw.x2, coordDraw.y2));
-        var result = new paper.Group(path);
+        var point1 = new paper.Point(coordDraw.x1, coordDraw.y1);
+        var point2 = new paper.Point(coordDraw.x2, coordDraw.y2);
+        var vect = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+        var width = 20;
+        var smallwidth = 8;
+        var length = point2.getDistance(point1, false);
+        var size = new paper.Size(width, length);
+        var rect = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'white';
+        size = new paper.Size(smallwidth, length);
+        var smallRect = paper.Path.Rectangle(point1, size);
+        smallRect.position.x -= smallwidth / 2;
+        smallRect.strokeColor = 'black';
+        smallRect.name = 'smallrect';
+        smallRect.fillColor = new paper.Color(0.44, 0.62, 0.80, 0.5);
+        var text = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'Window';
+        var result = new paper.Group([rect, smallRect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
         return result;
     };
     RenderApi.prototype.drawDoor = function (shape) {
-        var result = new paper.Group();
+        var coordDraw = this.calcCoord(shape);
+        var point1 = new paper.Point(coordDraw.x1, coordDraw.y1);
+        var point2 = new paper.Point(coordDraw.x2, coordDraw.y2);
+        var vect = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+        var width = 20;
+        var smallwidth = 8;
+        var length = point2.getDistance(point1, false);
+        var size = new paper.Size(width, length);
+        var rect = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'white';
+        size = new paper.Size(smallwidth, length);
+        var smallRect = paper.Path.Rectangle(point1, size);
+        smallRect.position.x -= smallwidth / 2;
+        smallRect.strokeColor = 'black';
+        smallRect.name = 'smallrect';
+        smallRect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
+        var text = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'Door';
+        var result = new paper.Group([rect, smallRect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
         return result;
     };
     RenderApi.prototype.drawDoorWay = function (shape) {
-        var result = new paper.Group();
+        var coordDraw = this.calcCoord(shape);
+        var point1 = new paper.Point(coordDraw.x1, coordDraw.y1);
+        var point2 = new paper.Point(coordDraw.x2, coordDraw.y2);
+        var vect = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+        var width = 20;
+        var length = point2.getDistance(point1, false);
+        var size = new paper.Size(width, length);
+        var rect = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'white';
+        var text = new paper.PointText(point1);
+        text.name = 'text';
+        text.position.x += width / 2 + 1;
+        text.fillColor = 'red';
+        text.fontSize = 20;
+        text.rotate(90);
+        text.content = 'DoorWay';
+        var result = new paper.Group([rect, text]);
+        result.rotate(vect.angle - 90, point1);
+        shape.renderObject = result;
         return result;
     };
     return RenderApi;
-})();
-/// <reference path="../../dist/paper.d.ts"/>
-var ShapeWindow = (function () {
-    function ShapeWindow(coordinates) {
-        this.coord = coordinates;
-    }
-    return ShapeWindow;
 })();
 /// <reference path="../../dist/paper.d.ts"/>
 var ShapeOuterWall = (function () {
@@ -154,6 +239,14 @@ var ShapeOuterWall = (function () {
         this.coord = coordinates;
     }
     return ShapeOuterWall;
+})();
+/// <reference path="../../dist/paper.d.ts"/>
+var ShapeColumn = (function () {
+    function ShapeColumn(coordinates) {
+        this.type = 3;
+        this.coord = coordinates;
+    }
+    return ShapeColumn;
 })();
 /// <reference path="../../dist/paper.d.ts"/>
 var ShapeInnerWall = (function () {
@@ -171,11 +264,38 @@ var ShapePartition = (function () {
     }
     return ShapePartition;
 })();
+/// <reference path="../../dist/paper.d.ts"/>
+var ShapeWindow = (function () {
+    function ShapeWindow(coordinates) {
+        this.type = 5;
+        this.coord = coordinates;
+    }
+    return ShapeWindow;
+})();
+/// <reference path="../../dist/paper.d.ts"/>
+var ShapeDoor = (function () {
+    function ShapeDoor(coordinates) {
+        this.type = 6;
+        this.coord = coordinates;
+    }
+    return ShapeDoor;
+})();
+/// <reference path="../../dist/paper.d.ts"/>
+var ShapeDoorWay = (function () {
+    function ShapeDoorWay(coordinates) {
+        this.type = 7;
+        this.coord = coordinates;
+    }
+    return ShapeDoorWay;
+})();
 /// <reference path="../dist/paper.d.ts"/>
-/// <reference path="Shapes/ShapeWindow.ts"/>
 /// <reference path="Shapes/ShapeOuterWall.ts"/>
+/// <reference path="Shapes/ShapeColumn.ts"/>
 /// <reference path="Shapes/ShapeInnerWall.ts"/>
 /// <reference path="Shapes/ShapePartition.ts"/>
+/// <reference path="Shapes/ShapeWindow.ts"/>
+/// <reference path="Shapes/ShapeDoor.ts"/>
+/// <reference path="Shapes/ShapeDoorWay.ts"/>
 var Stages = (function () {
     function Stages(stageContainer) {
         this._shapes = new Array;
@@ -200,9 +320,9 @@ var Stages = (function () {
         };
         var position4 = {
             x1: 222,
-            y1: 200,
+            y1: 240,
             x2: 320,
-            y2: 160
+            y2: 270
         };
         var position5 = {
             x1: 222,
@@ -210,10 +330,25 @@ var Stages = (function () {
             x2: 320,
             y2: 50
         };
+        var position6 = {
+            x1: 250,
+            y1: 200,
+            x2: 300,
+            y2: 180
+        };
+        var position7 = {
+            x1: 270,
+            y1: 90,
+            x2: 400,
+            y2: 200
+        };
         this.createShape(1, position1);
         this.createShape(2, position2);
+        this.createShape(3, position3);
         this.createShape(4, position4);
         this.createShape(5, position5);
+        this.createShape(6, position6);
+        this.createShape(7, position7);
     }
     Stages.prototype.createShape = function (type, position) {
         var newShape;
@@ -225,6 +360,10 @@ var Stages = (function () {
             newShape = new ShapeInnerWall(position);
             this._render.renderApi.drawInnerWall(newShape);
         }
+        if (type === 3) {
+            newShape = new ShapeColumn(position);
+            this._render.renderApi.drawColumn(newShape);
+        }
         if (type === 4) {
             newShape = new ShapePartition(position);
             this._render.renderApi.drawPartition(newShape);
@@ -232,6 +371,14 @@ var Stages = (function () {
         if (type === 5) {
             newShape = new ShapeWindow(position);
             this._render.renderApi.drawWindow(newShape);
+        }
+        if (type === 6) {
+            newShape = new ShapeDoor(position);
+            this._render.renderApi.drawDoor(newShape);
+        }
+        if (type === 7) {
+            newShape = new ShapeDoorWay(position);
+            this._render.renderApi.drawDoorWay(newShape);
         }
         this._shapes.push(newShape);
     };
