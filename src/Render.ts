@@ -10,6 +10,7 @@ class Render {
     public set zoom(value: number) {
         this._zoom = value;
         this._renderApi.zoom = value;
+        this.reDraw();
     }
 
     public get zoom(): number {
@@ -24,21 +25,20 @@ class Render {
         this._renderApi = new RenderApi(this._zoom);
         this._shapes = shapes;
         this._canvas = document.createElement('canvas');
-        this._canvas.width = window.innerWidth - 20;
-        this._canvas.height = window.innerHeight - 20;
+        this._canvas.width = 800; //window.innerWidth - 20;
+        this._canvas.height = 800; //window.innerHeight - 20;
         stageContainer.appendChild(this._canvas);
 
         this._ctx = this._canvas.getContext('2d');
-
         paper.setup(this._canvas);
     }
 
     public reDraw(): void {
-        this._shapes.forEach((item: IShape) => {
-            item.renderObject.position = new paper.Point(this._renderApi.getPosition(item));
+        const center: paper.Point = new paper.Point(this._canvas.width / 2, this._canvas.height/2);
+        this._shapes.forEach((item: IShape) => {            
+            item.renderObject.position = this.renderApi.getNewCord(item, center);
             item.renderObject.scale(this._renderApi.zoom);
         });
-        // Realize
     }
 
     public createMenu(count: number): Array<paper.Group> {
