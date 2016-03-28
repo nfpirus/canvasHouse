@@ -1,6 +1,6 @@
-/// <reference path="../../dist/paper.d.ts"/>
-class ShapeWindow implements IShape {
-    public type: number = 5;
+﻿/// <reference path="../../dist/paper.d.ts"/>
+class ShapeDoorWay implements IShape {
+    public type: number = 7;
     public coord: ICoordinates;
     public childrens: Array<IShape>;
     public valid: boolean;

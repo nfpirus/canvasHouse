@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -35,6 +35,12 @@
     <TypeScriptCompile Include="src\IShape.ts" />
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeColumn.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeDoor.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeDoorWay.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeInnerWall.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeOuterWall.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapePartition.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeWindow.ts" />
     <TypeScriptCompile Include="src\Stage.ts" />
   </ItemGroup>
@@ -76,6 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
