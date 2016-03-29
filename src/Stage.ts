@@ -28,6 +28,7 @@ class Stages {
         if (type === 1) {
             newShape = new ShapeOuterWall(position);
             this._render.renderApi.drawOuterWall(newShape);
+            // newShape.renderObject.position.x
         }
         if (type === 2) {
             newShape = new ShapeInnerWall(position);
@@ -80,12 +81,6 @@ class Stages {
     private initialization(): void {
         this._menu[0].onClick = () => this.zoomIn();
         this._menu[1].onClick = () => this.zoomOut();
-        this._menu[2].onClick = () => {
-            const center: paper.Point = new paper.Point(400, 400);
-            this._shapes[0].renderObject.position = new paper.Point(180, 280);
-        };
-
-
 
         const position1: ICoordinates = { // x195  y175
             x1: 110,
@@ -138,17 +133,5 @@ class Stages {
         this.createShape(6, position6);
         this.createShape(7, position7);
 
-        const path: any =  paper.Path
-        const circlePath: any = new path.Circle(new paper.Point(110, 130), 2);
-        circlePath.strokeColor = 'red';
-
-        const circlePath1: any = new path.Circle(new paper.Point(180, 280), 2);
-        circlePath1.strokeColor = 'red';
-
-        const circlePath2: any = new path.Circle(new paper.Point(271, 255), 2);
-        circlePath2.strokeColor = 'red';
-
-        const circlePath3: any = new path.Circle(new paper.Point(400, 400), 2);
-        circlePath3.strokeColor = 'red';
     }
 }

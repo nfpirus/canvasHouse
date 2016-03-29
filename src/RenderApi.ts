@@ -24,6 +24,35 @@ class RenderApi {
         return result;
     }
 
+
+    public createGreed(shape: IShape, winWidth, winHeight): paper.Group {
+
+        let i: number;
+        const high: number = 80;
+        const width: number = 80;
+        const pool: Array<paper.Path> = new Array;
+        for (i = -10; i < 20; i++) {
+            var myPath = new paper.Path();
+            myPath.strokeColor = '#cccccc';
+            myPath.strokeWidth = 1;
+            myPath.add(new paper.Point(i * width + 0.5, - winHeight - 0.5));
+            myPath.add(new paper.Point(i * width + 0.5, 2 * winHeight + 0.5));
+            pool.push(myPath);
+
+            var myPath2 = new paper.Path();
+            myPath2.strokeColor = '#cccccc';
+            myPath2.strokeWidth = 1;
+            myPath2.add(new paper.Point(-winWidth - 0.5, i * high + 0.5));
+            myPath2.add(new paper.Point(2 * winWidth + 0.5, i * high + 0.5));
+            pool.push(myPath2);
+        }
+        const result: paper.Group = new paper.Group(pool);
+        shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+
+        return result;
+    }
+
     public drawOuterWall(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
         const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
@@ -51,6 +80,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }
@@ -83,6 +113,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }
@@ -119,6 +150,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }
@@ -150,6 +182,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }
@@ -189,6 +222,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect, smallRect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }
@@ -228,6 +262,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect, smallRect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }
@@ -259,6 +294,7 @@ class RenderApi {
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
     }

@@ -32,9 +32,11 @@
   <ItemGroup>
     <TypeScriptCompile Include="dist\paper.d.ts" />
     <TypeScriptCompile Include="src\ICoordinates.ts" />
+    <TypeScriptCompile Include="src\IPoint.ts" />
     <TypeScriptCompile Include="src\IShape.ts" />
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeMenu.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeColumn.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeDoor.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeDoorWay.ts" />
