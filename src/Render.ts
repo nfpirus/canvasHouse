@@ -6,6 +6,7 @@ class Render {
     private _zoom: number = 0;
     private _shapes: Array<IShape>;
     private _renderApi: RenderApi;
+    private _greed: paper.Group;
 
     public set zoom(value: number) {
         this._zoom = value;
@@ -31,6 +32,8 @@ class Render {
 
         this._ctx = this._canvas.getContext('2d');
         paper.setup(this._canvas);
+
+        this._greed = this.createGreed();
     }
 
     public reDraw(): void {
@@ -39,6 +42,7 @@ class Render {
             item.renderObject.position = this.renderApi.getNewCord(item, center);
             item.renderObject.scale(this._renderApi.zoom);
         });
+        this._greed.scale(this._renderApi.zoom);
     }
 
     public createMenu(count: number): Array<paper.Group> {
@@ -81,5 +85,32 @@ class Render {
             point1.x = point1.x + margin + width;
         }
         return menuItem;
+    }
+
+    public createGreed(): paper.Group {
+
+        let i: number;
+        const high: number = 80;
+        const width: number = 80;
+        const pool: Array<paper.Path> = new Array;
+        for (i = -10; i < 20; i++) {
+            var myPath = new paper.Path();
+            myPath.strokeColor = '#cccccc';
+            myPath.strokeWidth = 1;
+            myPath.add(new paper.Point(i * width + 0.5, -this._canvas.height - 0.5));
+            myPath.add(new paper.Point(i * width + 0.5, 2*this._canvas.height + 0.5));
+            pool.push(myPath);
+
+            var myPath2 = new paper.Path();
+            myPath2.strokeColor = '#cccccc';
+            myPath2.strokeWidth = 1;
+            myPath2.add(new paper.Point(-this._canvas.width - 0.5, i * high + 0.5));
+            myPath2.add(new paper.Point(2*this._canvas.width + 0.5, i * high + 0.5));
+            pool.push(myPath2);
+        }
+
+        const result: paper.Group = new paper.Group(pool);
+
+        return result;
     }
 }
