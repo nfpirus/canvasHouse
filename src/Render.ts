@@ -10,6 +10,8 @@ class Render {
     private _greed: IShape = new ShapeMenu();
     private _center: paper.Point;
 
+    public selected: IShape = null;
+
     private _positionStartX: number;
     private _positionStartY: number;
     private _differenceX: number;
@@ -62,16 +64,18 @@ class Render {
         this._renderApi.createGreed(this._greed, this._canvas.width, this._canvas.height);
         this.mouseDetect();
         this._center = new paper.Point(this._canvas.width / 2, this._canvas.height / 2);
+
+        paper.project.activeLayer.onMouseMove = (event: any) => this.paperMouseMove(event);
     }
 
-    public drawByZoom(): void {
+    private drawByZoom(): void {
         this._shapes.forEach((item: IShape) => {
             this.drawShapeByZoom(item);
         });
         this.drawShapeByZoom(this._greed);
     }
 
-    public draw(): void {
+    private draw(): void {
         this._shapes.forEach((item: IShape) => {
             if (item.coordDraw) {
                 this.drawShape(item);
@@ -80,14 +84,68 @@ class Render {
         this.drawShape(this._greed);
     }
 
-    public drawShapeByZoom(shape: IShape): void {
-        const position2: paper.Point = this.renderApi.getNewCord(shape, this._center);
-        shape.renderObject.position = position2;
-        shape.renderObject.scale(this._renderApi.zoom);
-        shape.coordDraw = new paper.Point(position2.x - this._offsetX, position2.y - this._offsetY);
+    private paperMouseMove(event: any): void {
+        if (this.selected) {
+            this.selected.renderObject.position = event.point;
+            this.selected.coordDraw = this.setCoordDraw(event.point);
+            // TODO: Realize set this.selected.coord
+        }
     }
 
-    public drawShape(shape: IShape): void {
+    public createShape(type: number, position: ICoordinates): void {
+        let newShape: IShape;
+        if (type === 1) {
+            newShape = new ShapeOuterWall(position);
+            this.renderApi.drawOuterWall(newShape);
+        }
+        if (type === 2) {
+            newShape = new ShapeInnerWall(position);
+            this.renderApi.drawInnerWall(newShape);
+        }
+        if (type === 3) {
+            newShape = new ShapeColumn(position);
+            this.renderApi.drawColumn(newShape);
+        }
+        if (type === 4) {
+            newShape = new ShapePartition(position);
+            this.renderApi.drawPartition(newShape);
+        }
+        if (type === 5) {
+            newShape = new ShapeWindow(position);
+            this.renderApi.drawWindow(newShape);
+        }
+        if (type === 6) {
+            newShape = new ShapeDoor(position);
+            this.renderApi.drawDoor(newShape);
+        }
+        if (type === 7) {
+            newShape = new ShapeDoorWay(position);
+            this.renderApi.drawDoorWay(newShape);
+        }
+
+        newShape.type = type;
+        this._shapes.push(newShape);
+
+        newShape.renderObject.onMouseDown = () => {
+            this.selected = newShape;
+        };
+        newShape.renderObject.onMouseUp = () => {
+            this.selected = null;
+        };
+    }
+
+    private drawShapeByZoom(shape: IShape): void {
+        const position: paper.Point = this.renderApi.getNewCord(shape, this._center);
+        shape.renderObject.position = position;
+        shape.renderObject.scale(this._renderApi.zoom);
+        shape.coordDraw = this.setCoordDraw(position);
+    }
+
+    private setCoordDraw(point: IPoint): IPoint {
+        return new paper.Point(point.x - this._offsetX, point.y - this._offsetY);
+    }
+
+    private drawShape(shape: IShape): void {
         shape.renderObject.position = new paper.Point(shape.coordDraw.x + this._offsetX, shape.coordDraw.y + this._offsetY);
     }
 
@@ -131,7 +189,6 @@ class Render {
         }
         return menuItem;
     }
-
 
     private mouseMoveListener(e: MouseEvent): void {
         if (this._mouseDown) {
@@ -208,15 +265,17 @@ class Render {
 
     private mouseDownListener(e: MouseEvent): void {
         this.stopPostAnimation();
-        this._mouseDown = true;
-        this._positionStartX = e.pageX - this._canvas.offsetLeft;
-        this._positionStartY = e.pageY - this._canvas.offsetTop;
+        if (!this.selected) {
+            this._mouseDown = true;
+            this._positionStartX = e.pageX - this._canvas.offsetLeft;
+            this._positionStartY = e.pageY - this._canvas.offsetTop;
 
-        this._mousePathX.push(this._positionStartX);
-        this._mousePathY.push(this._positionStartY);
-        this._mouseTimeMove.push(Date.now() - 1);
+            this._mousePathX.push(this._positionStartX);
+            this._mousePathY.push(this._positionStartY);
+            this._mouseTimeMove.push(Date.now() - 1);
 
-        this._requestAnimationFrameID = requestAnimationFrame(this.moveStage.bind(this)); // Start the loop.
+            this._requestAnimationFrameID = requestAnimationFrame(this.moveStage.bind(this)); // Start the loop.
+        }
     }
 
     public mouseDetect(): void {

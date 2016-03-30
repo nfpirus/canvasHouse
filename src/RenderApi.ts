@@ -79,6 +79,14 @@ class RenderApi {
         */
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
+            // TODO: Realize show Length
+        };
+        result.onMouseLeave = () => {
+            rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
+            // TODO: Realize hide Length
+        }; 
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -100,7 +108,6 @@ class RenderApi {
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = new paper.Color(0.60, 0.73, 0.21, 0.5);
-
         /*
         let text: paper.TextItem = new paper.PointText(point1);
         text.name = 'text';
@@ -112,6 +119,14 @@ class RenderApi {
         */
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
+            // TODO: Realize show Length
+        };
+        result.onMouseLeave = () => {
+            rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
+            // TODO: Realize hide Length
+        };    
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -125,8 +140,8 @@ class RenderApi {
      */
     public drawColumn(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+        const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
+        const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
         const width: number = 20;
@@ -137,18 +152,16 @@ class RenderApi {
         rect.position.x -= width / 2;
         rect.strokeColor = 'black';
         rect.name = 'rect';
-        rect.fillColor = new paper.Color(0.56, 0.66, 0.64, 0.5);
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;
-        text.rotate(90);
-        text.content = 'Column';
-        */
+        rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
+
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
+        };
+        result.onMouseLeave = () => {
+            rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
+        };        
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -170,17 +183,15 @@ class RenderApi {
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;
-        text.rotate(90);
-        text.content = 'Partition';
-        */
+
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+        };
+        result.onMouseLeave = () => {
+            rect.strokeColor = 'black';
+        };    
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -210,17 +221,17 @@ class RenderApi {
         smallRect.strokeColor = 'black';
         smallRect.name = 'smallrect';
         smallRect.fillColor = new paper.Color(0.44, 0.62, 0.80, 0.5);
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;
-        text.rotate(90);
-        text.content = 'Window';
-        */
+
         const result: paper.Group = new paper.Group([rect, smallRect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+            smallRect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+        };
+        result.onMouseLeave = () => {
+            rect.strokeColor = 'black';
+            smallRect.strokeColor = 'black';
+        };    
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -250,17 +261,17 @@ class RenderApi {
         smallRect.strokeColor = 'black';
         smallRect.name = 'smallrect';
         smallRect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;
-        text.rotate(90);
-        text.content = 'Door';
-        */
+
         const result: paper.Group = new paper.Group([rect, smallRect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+            smallRect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+        };
+        result.onMouseLeave = () => {
+            rect.strokeColor = 'black';
+            smallRect.strokeColor = 'black';
+        };
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -282,17 +293,15 @@ class RenderApi {
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = 'white';
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;
-        text.rotate(90);
-        text.content = 'DoorWay'
-        */
+
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
+        result.onMouseEnter = () => {
+            rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+        };
+        result.onMouseLeave = () => {
+            rect.strokeColor = 'black';
+        };  
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
