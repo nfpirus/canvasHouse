@@ -1,6 +1,7 @@
 # My project exception
 node_modules
 script/script.js
+script/*.js
 src/*.js
 obj
 *.map
@@ -60,4 +61,3 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-script/script.js
