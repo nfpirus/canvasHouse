@@ -3,6 +3,7 @@ node_modules
 script/script.js
 script/*.js
 src/*.js
+src/Shapes/*.js
 obj
 *.map
 .tscache
