@@ -22,43 +22,6 @@ class Stages {
         this.initialization();
     }
 
-    private createShape(type: number, position: ICoordinates): void {
-        let newShape: IShape;
-        // Realize
-        if (type === 1) {
-            newShape = new ShapeOuterWall(position);
-            this._render.renderApi.drawOuterWall(newShape);
-            // newShape.renderObject.position.x
-        }
-        if (type === 2) {
-            newShape = new ShapeInnerWall(position);
-            this._render.renderApi.drawInnerWall(newShape);
-        }
-        if (type === 3) {
-            newShape = new ShapeColumn(position);
-            this._render.renderApi.drawColumn(newShape);
-        }
-        if (type === 4) {
-            newShape = new ShapePartition(position);
-            this._render.renderApi.drawPartition(newShape);
-        }
-        if (type === 5) {
-            newShape = new ShapeWindow(position);
-            newShape.type = type;
-            newShape.renderObject = this._render.renderApi.drawWindow(newShape);
-        }
-        if (type === 6) {
-            newShape = new ShapeDoor(position);
-            this._render.renderApi.drawDoor(newShape);
-        }
-        if (type === 7) {
-            newShape = new ShapeDoorWay(position);
-            this._render.renderApi.drawDoorWay(newShape);
-        }
-
-        this._shapes.push(newShape);
-    }
-
     private deleteShape(shape: IShape): void {
         const item: number = this._shapes.indexOf(shape);
         // Realize UnDraw Element;
@@ -98,7 +61,7 @@ class Stages {
             x1: 610,
             y1: 540,
             x2: 660,
-            y2: 530
+            y2: 540
         };
         const position4: ICoordinates = { // 271 255
             x1: 222,
@@ -125,13 +88,13 @@ class Stages {
             y2: 300
         };
 
-        this.createShape(1, position1);
-        this.createShape(2, position2);
-        this.createShape(3, position3);
-        this.createShape(4, position4);
-        this.createShape(5, position5);
-        this.createShape(6, position6);
-        this.createShape(7, position7);
+        this._render.createShape(1, position1);
+        this._render.createShape(2, position2);
+        this._render.createShape(3, position3);
+        this._render.createShape(4, position4);
+        this._render.createShape(5, position5);
+        this._render.createShape(6, position6);
+        this._render.createShape(7, position7);
 
     }
 }
