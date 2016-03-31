@@ -24,8 +24,9 @@ class RenderApi {
         return result;
     }
 
-
-    public createGreed(shape: IShape, winWidth, winHeight): paper.Group {
+    public drawGreed(shape: IShape, winWidth, winHeight): paper.Group {
+        const rect: paper.Path = paper.Path.Rectangle(new paper.Point(0, 0), new paper.Size(winWidth, winHeight));
+        rect.fillColor = 'white';
 
         let i: number;
         const high: number = 80;
@@ -51,6 +52,48 @@ class RenderApi {
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;
+    }
+
+    public drawMenu(count: number, width: number, hight: number): Array<paper.Group> {
+        const path: any = paper.Path;
+        const path1: paper.Path = new path.Rectangle(new paper.Point(0, 0), new paper.Point(width, 40));
+        path1.fillColor = '#f6f0e7';
+
+        const menuItem: Array<paper.Group> = new Array;
+
+        const point1: paper.Point = new paper.Point(0, 0);
+        const margin: number = 5;
+        const heightItem: number = hight - margin;
+        const widthItem: number = 100;
+        
+
+        let i: number;
+        for (i = 0; i < count; i++) {
+
+            const point2: paper.Point = new paper.Point(point1.x + widthItem, point1.y + heightItem);
+            const button: paper.Path = new path.Rectangle(point1, point2);
+
+            button.fillColor = '#f6f0e7';
+
+            const text = new paper.PointText(new paper.Point(point1.x + 60, point1.y + 22));
+            text.justification = 'center';
+            text.fillColor = '#956429';
+            text.content = 'Button ' + i;
+
+            const group = new paper.Group([button, text]);
+            group.onMouseEnter = function (event) {
+                this.children[0].fillColor = '#ffbb80';
+                document.body.style.cursor = "pointer";
+            }
+
+            group.onMouseLeave = function (event) {
+                this.children[0].fillColor = '#f6f0e7';
+                document.body.style.cursor = "default";
+            }
+            menuItem.push(group);
+            point1.x = point1.x + margin + widthItem;
+        }
+        return menuItem;
     }
 
     public drawOuterWall(shape: IShape): paper.Group {
