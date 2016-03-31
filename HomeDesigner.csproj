@@ -26,6 +26,7 @@
     <Content Include="dist\paper-core.min.js" />
     <Content Include="dist\paper-full.js" />
     <Content Include="dist\paper-full.min.js" />
+    <Content Include="Gruntfile.js" />
     <Content Include="index.html" />
     <Content Include="web.config" />
   </ItemGroup>
@@ -36,6 +37,7 @@
     <TypeScriptCompile Include="src\IShape.ts" />
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
+    <TypeScriptCompile Include="src\Shapes\ShapeControl.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeMenu.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeColumn.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeDoor.ts" />

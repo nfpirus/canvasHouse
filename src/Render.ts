@@ -68,9 +68,15 @@ class Render {
         paper.project.activeLayer.onMouseMove = (event: any) => this.paperMouseMove(event);
     }
 
+    //recursion ?
     private drawByZoom(): void {
         this._shapes.forEach((item: IShape) => {
             this.drawShapeByZoom(item);
+            if (item.childrens) {
+                item.childrens.forEach((child: IShape) => {
+                    this.drawShapeByZoom(child);
+                })
+            }
         });
         this.drawShapeByZoom(this._greed);
     }
@@ -79,7 +85,14 @@ class Render {
         this._shapes.forEach((item: IShape) => {
             if (item.coordDraw) {
                 this.drawShape(item);
-            }         
+            }
+            
+            if (item.childrens) {
+                item.childrens.forEach((child: IShape) => {
+                    this.drawShape(child);
+                });
+            }
+                    
         });
         this.drawShape(this._greed);
     }
@@ -88,19 +101,59 @@ class Render {
         if (this.selected) {
             this.selected.renderObject.position = event.point;
             this.selected.coordDraw = this.setCoordDraw(event.point);
+           
+            if (this.selected.childrens) {
+                this.selected.childrens.forEach((child: IShape) => {                                                
+                    //Legacy for coordinates of children            
+                });
+            }
+          
             // TODO: Realize set this.selected.coord
         }
     }
 
     public createShape(type: number, position: ICoordinates): void {
         let newShape: IShape;
+        let control1: IShape;
+        let control2: IShape;
+
+        let invertPosition = {
+            x1: position.x2,
+            y1: position.y2,
+            x2: position.x1,
+            y2: position.y1
+        }
+
         if (type === 1) {
             newShape = new ShapeOuterWall(position);
+            control1 = new ShapeControl(position);
+            control2 = new ShapeControl(invertPosition);
+
             this.renderApi.drawOuterWall(newShape);
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //cause unexpected troubles
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 2) {
             newShape = new ShapeInnerWall(position);
+            control1 = new ShapeControl(position);
+            control2 = new ShapeControl(invertPosition);
+
             this.renderApi.drawInnerWall(newShape);
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 3) {
             newShape = new ShapeColumn(position);
@@ -108,7 +161,18 @@ class Render {
         }
         if (type === 4) {
             newShape = new ShapePartition(position);
+            control1 = new ShapeControl(position);
+            control2 = new ShapeControl(invertPosition);
+
             this.renderApi.drawPartition(newShape);
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 5) {
             newShape = new ShapeWindow(position);

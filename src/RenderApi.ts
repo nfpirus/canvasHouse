@@ -24,7 +24,6 @@ class RenderApi {
         return result;
     }
 
-
     public createGreed(shape: IShape, winWidth, winHeight): paper.Group {
 
         let i: number;
@@ -47,6 +46,35 @@ class RenderApi {
             pool.push(myPath2);
         }
         const result: paper.Group = new paper.Group(pool);
+        shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+
+        return result;
+    }
+
+    public drawControl(shape: IShape): paper.Group {
+        const coordDraw: ICoordinates = shape.coord;
+        const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
+        const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
+
+        const width: number = 8;
+        const length: number = 8;
+
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.position.y -= length / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'yellow';
+
+        const result: paper.Group = new paper.Group([rect]);
+        result.onMouseEnter = () => {
+            rect.fillColor = 'lightblue';
+        };
+        result.onMouseLeave = () => {
+            rect.fillColor = 'yellow';
+        };
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
@@ -87,7 +115,7 @@ class RenderApi {
             rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
             // TODO: Realize hide Length
         }; 
-        shape.renderObject = result;
+        shape.renderObject = result;        
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         return result;

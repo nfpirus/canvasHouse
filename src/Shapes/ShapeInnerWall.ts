@@ -9,5 +9,6 @@ class ShapeInnerWall implements IShape {
 
     constructor(coordinates: ICoordinates) {
         this.coord = coordinates;
+        this.childrens = [];
     }
 }
