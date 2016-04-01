@@ -36,19 +36,7 @@ class Render {
     private _animationBound: number = 50;
     private _durationPostAnimation: number = 10;
 
-    public set zoom(value: number) {
-        this._zoom = value;
-        this._renderApi.zoom = value;
-        this.drawByZoom();
-    }
-
-    public get zoom(): number {
-        return this._zoom;
-    }
-
-    public get renderApi(): RenderApi {
-        return this._renderApi;
-    }
+    private _events: Events;
 
     constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {
         this._renderApi = new RenderApi(this._zoom);
@@ -61,11 +49,26 @@ class Render {
         this._ctx = this._canvas.getContext('2d');
         paper.setup(this._canvas);
 
-        this._renderApi.createGreed(this._greed, this._canvas.width, this._canvas.height);
+        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height);
         this.mouseDetect();
         this._center = new paper.Point(this._canvas.width / 2, this._canvas.height / 2);
 
-        paper.project.activeLayer.onMouseMove = (event: any) => this.paperMouseMove(event);
+        this._events = new Events(this);
+        this._events.addMouseMoveListener(this.shapeMove);
+    }
+
+    public set zoom(value: number) {
+        this._zoom = value;
+        this._renderApi.zoom = value;
+        this.drawByZoom();
+    }
+
+    public get zoom(): number {
+        return this._zoom;
+    }
+
+    public get renderApi(): RenderApi {
+        return this._renderApi;
     }
 
     //recursion ?
@@ -85,29 +88,22 @@ class Render {
         this._shapes.forEach((item: IShape) => {
             if (item.coordDraw) {
                 this.drawShape(item);
-            }
+            }         
             
             if (item.childrens) {
                 item.childrens.forEach((child: IShape) => {
                     this.drawShape(child);
-                });
+        });
             }
                     
         });
         this.drawShape(this._greed);
     }
 
-    private paperMouseMove(event: any): void {
-        if (this.selected) {
-            this.selected.renderObject.position = event.point;
-            this.selected.coordDraw = this.setCoordDraw(event.point);
-           
-            if (this.selected.childrens) {
-                this.selected.childrens.forEach((child: IShape) => {                                                
-                    //Legacy for coordinates of children            
-                });
-            }
-          
+    private shapeMove(event: any, link): void {
+        if (link.selected) {
+            link.selected.renderObject.position = event.point;
+            link.selected.coordDraw = link.setCoordDraw(event.point);
             // TODO: Realize set this.selected.coord
         }
     }
@@ -213,45 +209,78 @@ class Render {
         shape.renderObject.position = new paper.Point(shape.coordDraw.x + this._offsetX, shape.coordDraw.y + this._offsetY);
     }
 
-    public createMenu(count: number): Array<paper.Group> {
+    public drawWall(): any {
         const path: any = paper.Path;
-        const path1: paper.Path = new path.Rectangle(new paper.Point(0, 0), new paper.Point(this._canvas.width, 40));
-        path1.fillColor = '#f6f0e7';
+        let line: any;
+        let drawShape: boolean = false;
+        let startPoint: paper.Point = null;
 
-        const menuItem: Array<paper.Group> = new Array;
+        let mouseDownHandler = null;
+        let mouseMoveHandler = null;
+        let link: any = {};
+        link = this;
+        let onMouseMove: any;
+        let onMouseDown: any
 
-        const point1: paper.Point = new paper.Point(0, 0);
-        const height: number = 35;
-        const width: number = 100;
-        const margin: number = 5;
-
-        let i: number;
-        for (i = 0; i < count; i++) {
-
-            const point2: paper.Point = new paper.Point(point1.x + width, point1.y + height);
-            const button: paper.Path = new path.Rectangle(point1, point2);
-
-            button.fillColor = '#f6f0e7';
-
-            const text = new paper.PointText(new paper.Point(point1.x + 60, point1.y + 22));
-            text.justification = 'center';
-            text.fillColor = '#956429';
-            text.content = 'Button ' + i;
-
-            const group = new paper.Group([button, text]);
-            group.onMouseEnter = function (event) {
-                this.children[0].fillColor = '#ffbb80';
-                document.body.style.cursor = "pointer";
+        let mouseDownEvent = function (event: any) {
+            drawShape = false;
+            startPoint = event.point;
+            if (line) {
+                const position: ICoordinates = {
+                    x1: line.segments[0].point.x,
+                    y1: line.segments[0].point.y,
+                    x2: line.segments[1].point.x,
+                    y2: line.segments[1].point.y
+                };
+                link.createShape(1, position);
+                line.remove();
             }
-
-            group.onMouseLeave = function (event) {
-                this.children[0].fillColor = '#f6f0e7';
-                document.body.style.cursor = "default";
-            }
-            menuItem.push(group);
-            point1.x = point1.x + margin + width;
         }
-        return menuItem;
+
+        let mouseMoveEvent = function (event: any) {
+            if (startPoint) {
+                line = new path.Line(startPoint, event.point);
+                line.strokeColor = '#0088ff';
+                line.strokeWidth = 2;
+                startPoint = null;
+                drawShape = true;
+            } else if (drawShape) {
+                line.segments[line.segments.length - 1].point = event.point
+            }
+        }
+
+        let cancelEvent = function (link: any) {
+            mouseDownHandler = null;
+            mouseMoveHandler = null;
+            startPoint = null;
+            line.remove();
+            line = null;
+            drawShape = false;
+        }
+
+        onMouseDown = (event: any, link: any) => {
+            if (mouseDownHandler && event.point.y < 35) {
+                cancelEvent(link);
+            } else if (mouseDownHandler) {
+                mouseDownHandler(event);
+            }
+        };
+
+        onMouseMove = (event: any, link: any) => {
+            if (mouseMoveHandler) {
+                mouseMoveHandler(event);
+            }
+        };
+
+        mouseDownHandler = mouseDownEvent;
+        mouseMoveHandler = mouseMoveEvent;
+
+        this._events.addMouseDownListener(onMouseDown);
+        this._events.addMouseMoveListener(onMouseMove);
+            }
+
+    public createMenu(count: number): Array<paper.Group> {
+        return this._renderApi.drawMenu(count, this._canvas.width , 40);
     }
 
     private mouseMoveListener(e: MouseEvent): void {

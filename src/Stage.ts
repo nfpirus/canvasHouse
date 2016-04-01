@@ -45,6 +45,7 @@ class Stages {
     private initialization(): void {
         this._menu[0].onClick = () => this.zoomIn();
         this._menu[1].onClick = () => this.zoomOut();
+        this._menu[2].onClick = () => this._render.drawWall();
 
         const position1: ICoordinates = { // x195  y175
             x1: 110,
