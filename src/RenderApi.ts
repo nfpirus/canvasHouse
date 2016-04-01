@@ -32,25 +32,30 @@ class RenderApi {
         const high: number = 80;
         const width: number = 80;
         const pool: Array<paper.Path> = new Array;
-        for (i = -10; i < 20; i++) {
+        const widthElemen =  Math.floor(winWidth/width);
+        const highElemen =  Math.floor(winHeight/high);
+        const widthLength = widthElemen * width;
+        const highLength = highElemen * high;
+        for (i = 0; i <= widthElemen; i++) {
             var myPath = new paper.Path();
             myPath.strokeColor = '#cccccc';
             myPath.strokeWidth = 1;
-            myPath.add(new paper.Point(i * width + 0.5, - winHeight - 0.5));
-            myPath.add(new paper.Point(i * width + 0.5, 2 * winHeight + 0.5));
+            myPath.add(new paper.Point(i * width + 0.5, + 0.5));
+            myPath.add(new paper.Point(i * width + 0.5, highLength + 0.5));
             pool.push(myPath);
-
+        }
+        for (i = 0; i <= highElemen; i++) {
             var myPath2 = new paper.Path();
             myPath2.strokeColor = '#cccccc';
             myPath2.strokeWidth = 1;
-            myPath2.add(new paper.Point(-winWidth - 0.5, i * high + 0.5));
-            myPath2.add(new paper.Point(2 * winWidth + 0.5, i * high + 0.5));
+            myPath2.add(new paper.Point(0.5, i * high + 0.5));
+            myPath2.add(new paper.Point(widthLength + 0.5, i * high + 0.5));
             pool.push(myPath2);
         }
         const result: paper.Group = new paper.Group(pool);
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
-
+    
         return result;
     }
 
