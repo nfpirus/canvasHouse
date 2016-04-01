@@ -104,6 +104,21 @@ class Render {
         if (link.selected) {
             link.selected.renderObject.position = event.point;
             link.selected.coordDraw = link.setCoordDraw(event.point);
+            
+            if (link.selected.childrens) {
+                link.selected.childrens.forEach((child: IShape, i: number) => {
+                    let x: number;
+                    let y: number;
+                    let segments: Array<paper.Segment>;
+                    segments = link.selected.renderObject.firstChild.segments;
+                    x = (segments[2 * i].point.x + segments[4 - 2 * i - 1].point.x) / 2;
+                    y = (segments[2 * i].point.y + segments[4 - 2 * i - 1].point.y) / 2;
+                    
+                    child.renderObject.firstChild.position = new paper.Point(x, y);
+                    child.coordDraw = link.setCoordDraw(new paper.Point(x, y));
+                });
+            }
+            
             // TODO: Realize set this.selected.coord
         }
     }
@@ -199,6 +214,16 @@ class Render {
         shape.renderObject.position = position;
         shape.renderObject.scale(this._renderApi.zoom);
         shape.coordDraw = this.setCoordDraw(position);
+
+        //Is it useful?
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape, i: number) => {
+                const position: paper.Point = this.renderApi.getNewCord(child, this._center);
+                child.renderObject.position = position;
+                child.renderObject.scale(this._renderApi.zoom);
+                child.coordDraw = this.setCoordDraw(position);
+            });
+        }
     }
 
     private setCoordDraw(point: IPoint): IPoint {
