@@ -1,4 +1,5 @@
 /// <reference path="../dist/paper.d.ts"/>
+/// <reference path="Shapes/ShapeControl.ts"/>
 /// <reference path="Shapes/ShapeOuterWall.ts"/>
 /// <reference path="Shapes/ShapeColumn.ts"/>
 /// <reference path="Shapes/ShapeInnerWall.ts"/>

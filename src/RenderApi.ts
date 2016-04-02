@@ -101,6 +101,35 @@ class RenderApi {
         return menuItem;
     }
 
+    public drawControl(shape: IShape): paper.Group {
+        const coordDraw: ICoordinates = shape.coord;
+        const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
+        const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
+
+        const width: number = 8;
+        const length: number = 8;
+
+        let size: paper.Size = new paper.Size(width, length);
+        let rect: paper.Path = paper.Path.Rectangle(point1, size);
+        rect.position.x -= width / 2;
+        rect.position.y -= length / 2;
+        rect.strokeColor = 'black';
+        rect.name = 'rect';
+        rect.fillColor = 'yellow';
+
+        const result: paper.Group = new paper.Group([rect]);
+        result.onMouseEnter = () => {
+            rect.fillColor = 'lightblue';
+        };
+        result.onMouseLeave = () => {
+            rect.fillColor = 'yellow';
+        };
+        shape.renderObject = result;
+        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+
+        return result;
+    }
+
     public drawOuterWall(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
         const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);

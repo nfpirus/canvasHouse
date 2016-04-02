@@ -71,9 +71,15 @@ class Render {
         return this._renderApi;
     }
 
+    //recursion ?
     private drawByZoom(): void {
         this._shapes.forEach((item: IShape) => {
             this.drawShapeByZoom(item);
+            if (item.childrens) {
+                item.childrens.forEach((child: IShape) => {
+                    this.drawShapeByZoom(child);
+                })
+            }
         });
         this.drawShapeByZoom(this._greed);
     }
@@ -83,6 +89,13 @@ class Render {
             if (item.coordDraw) {
                 this.drawShape(item);
             }         
+            
+            if (item.childrens) {
+                item.childrens.forEach((child: IShape) => {
+                    this.drawShape(child);
+        });
+            }
+                    
         });
         this.drawShape(this._greed);
     }
@@ -91,19 +104,67 @@ class Render {
         if (link.selected) {
             link.selected.renderObject.position = event.point;
             link.selected.coordDraw = link.setCoordDraw(event.point);
+            
+            if (link.selected.childrens) {
+                link.selected.childrens.forEach((child: IShape, i: number) => {
+                    let x: number;
+                    let y: number;
+                    let segments: Array<paper.Segment>;
+                    segments = link.selected.renderObject.firstChild.segments;
+                    x = (segments[2 * i].point.x + segments[4 - 2 * i - 1].point.x) / 2;
+                    y = (segments[2 * i].point.y + segments[4 - 2 * i - 1].point.y) / 2;
+                    
+                    child.renderObject.firstChild.position = new paper.Point(x, y);
+                    child.coordDraw = link.setCoordDraw(new paper.Point(x, y));
+                });
+            }
+            
             // TODO: Realize set this.selected.coord
         }
     }
 
     public createShape(type: number, position: ICoordinates): void {
         let newShape: IShape;
+        let control1: IShape;
+        let control2: IShape;
+
+        let invertPosition = {
+            x1: position.x2,
+            y1: position.y2,
+            x2: position.x1,
+            y2: position.y1
+        }
+
         if (type === 1) {
             newShape = new ShapeOuterWall(position);
+            control1 = new ShapeControl(position);
+            control2 = new ShapeControl(invertPosition);
+
             this.renderApi.drawOuterWall(newShape);
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //cause unexpected troubles
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 2) {
             newShape = new ShapeInnerWall(position);
+            control1 = new ShapeControl(position);
+            control2 = new ShapeControl(invertPosition);
+
             this.renderApi.drawInnerWall(newShape);
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 3) {
             newShape = new ShapeColumn(position);
@@ -111,7 +172,18 @@ class Render {
         }
         if (type === 4) {
             newShape = new ShapePartition(position);
+            control1 = new ShapeControl(position);
+            control2 = new ShapeControl(invertPosition);
+
             this.renderApi.drawPartition(newShape);
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 5) {
             newShape = new ShapeWindow(position);
@@ -142,6 +214,16 @@ class Render {
         shape.renderObject.position = position;
         shape.renderObject.scale(this._renderApi.zoom);
         shape.coordDraw = this.setCoordDraw(position);
+
+        //Is it useful?
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape, i: number) => {
+                const position: paper.Point = this.renderApi.getNewCord(child, this._center);
+                child.renderObject.position = position;
+                child.renderObject.scale(this._renderApi.zoom);
+                child.coordDraw = this.setCoordDraw(position);
+            });
+        }
     }
 
     private setCoordDraw(point: IPoint): IPoint {
@@ -220,7 +302,7 @@ class Render {
 
         this._events.addMouseDownListener(onMouseDown);
         this._events.addMouseMoveListener(onMouseMove);
-    }
+            }
 
     public createMenu(count: number): Array<paper.Group> {
         return this._renderApi.drawMenu(count, this._canvas.width , 40);
