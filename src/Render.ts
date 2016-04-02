@@ -1,5 +1,6 @@
 /// <reference path="../dist/paper.d.ts"/>
 /// <reference path="Shapes/ShapeMenu.ts"/>
+/// <reference path="IPoint.ts"/>
 
 class Render {
     private _canvas: HTMLCanvasElement;
@@ -11,6 +12,7 @@ class Render {
     private _center: paper.Point;
 
     public selected: IShape = null;
+    private _selectedMode: boolean = true;
 
     private _positionStartX: number;
     private _positionStartY: number;
@@ -60,7 +62,6 @@ class Render {
     public set zoom(value: number) {
         this._zoom = value;
         this._renderApi.zoom = value;
-        console.log(' zoom ', this._renderApi.zoom);
     }
 
     public get zoom(): number {
@@ -76,22 +77,38 @@ class Render {
         this.drawShapeByZoom(this._greed, scale);
     }
 
+    private drawShapeByZoom(shape: IShape, scale: number): void {
+        const position: paper.Point = this.renderApi.getNewCord(shape, this._center, scale);
+        shape.renderObject.position = position;
+        shape.renderObject.scale(scale);
+        shape.coordDraw = this.setCoordDraw(position);
+
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child, scale));
+        }
+    }
+
     private shapeMove(event: any, link): void {
-        if (link.selected) {
+        if (link.selected && link._selectedMode) {
             link.selected.renderObject.position = event.point;
             link.selected.coordDraw = link.setCoordDraw(event.point);
             
             if (link.selected.childrens) {
                 link.selected.childrens.forEach((child: IShape, i: number) => {
-                    let x: number;
-                    let y: number;
-                    let segments: Array<paper.Segment>;
-                    segments = link.selected.renderObject.firstChild.segments;
-                    x = (segments[2 * i].point.x + segments[4 - 2 * i - 1].point.x) / 2;
-                    y = (segments[2 * i].point.y + segments[4 - 2 * i - 1].point.y) / 2;
-                    
-                    child.renderObject.firstChild.position = new paper.Point(x, y);
-                    child.coordDraw = link.setCoordDraw(new paper.Point(x, y));
+                    if (child.type === 0) {
+                        let x: number;
+                        let y: number;
+                        let segments: Array<paper.Segment>;
+                        segments = link.selected.renderObject.firstChild.segments;
+                        x = (segments[2 * i].point.x + segments[4 - 2 * i - 1].point.x) / 2;
+                        y = (segments[2 * i].point.y + segments[4 - 2 * i - 1].point.y) / 2;
+
+                        child.renderObject.firstChild.position = new paper.Point(x, y);
+                        child.coordDraw = link.setCoordDraw(new paper.Point(x, y));
+                    } else {
+                        child.renderObject.position = event.point;
+                        child.coordDraw = link.setCoordDraw(event.point);
+                    }
                 });
             }
             
@@ -100,6 +117,43 @@ class Render {
     }
 
     public createShape(type: number, position: ICoordinates): IShape {
+
+        function VDot(v1: IPoint, v2: IPoint): number {
+            return v1.x * v2.x + v1.y * v2.y
+        }
+        function VMul(v1: IPoint, A: number): IPoint {
+            const result: IPoint = new paper.Point(0, 0);
+            result.x = v1.x * A;
+            result.y = v1.y * A;
+            return result;
+        }
+        function VSub(v1: IPoint, v2: IPoint): IPoint {
+            const result: IPoint = new paper.Point(0, 0);
+            result.x = v1.x - v2.x;
+            result.y = v1.y - v2.y;
+            return result;
+        }
+        function VNorm(V): IPoint {
+            const result: IPoint = new paper.Point(0, 0);
+            var vl;
+            vl = Math.sqrt(V.x * V.x + V.y * V.y);
+            result.x = V.x / vl;
+            result.y = V.y / vl;
+            return result;
+        }
+        function VProject(A: IPoint, B: IPoint): IPoint {
+            let result: IPoint = new paper.Point(0, 0);
+            A = VNorm(A);
+            result = VMul(A, VDot(A, B));
+            return result
+        }
+        function Perpendicular(A: IPoint, B: IPoint, C: IPoint): IPoint {
+            let result: IPoint = new paper.Point(0, 0);
+            var CA = VSub(C, A);
+            result = VSub(VProject(VSub(B, A), CA), CA);
+            return result;
+        }
+
         let newShape: IShape;
         let control1: IShape;
         let control2: IShape;
@@ -117,6 +171,7 @@ class Render {
             control2 = new ShapeControl(invertPosition);
 
             this.renderApi.drawOuterWall(newShape);
+            this._shapes.push(newShape);
         }
         if (type === 2) {
             newShape = new ShapeInnerWall(position);
@@ -124,10 +179,12 @@ class Render {
             control2 = new ShapeControl(invertPosition);
 
             this.renderApi.drawInnerWall(newShape);
+            this._shapes.push(newShape);
         }
         if (type === 3) {
             newShape = new ShapeColumn(position);
             this.renderApi.drawColumn(newShape);
+            this._shapes.push(newShape);
         }
         if (type === 4) {
             newShape = new ShapePartition(position);
@@ -141,8 +198,15 @@ class Render {
             this.renderApi.drawWindow(newShape);
         }
         if (type === 6) {
+            const vect: paper.Point = new paper.Point(this.selected.coord.x2 - this.selected.coord.x1, this.selected.coord.y2 - this.selected.coord.y1);
+            const point1: IPoint = new paper.Point(this.selected.coord.x1, this.selected.coord.y1);
+            const point2: IPoint = new paper.Point(this.selected.coord.x2, this.selected.coord.y2);
+            const point3: IPoint = new paper.Point(position.x1, position.y1);
+            const point4: IPoint = Perpendicular(point1, point2, point3);
+            position.x1 = position.x1 + point4.x;
+            position.y1 = position.y1 + point4.y;
             newShape = new ShapeDoor(position);
-            this.renderApi.drawDoor(newShape);
+            this.renderApi.drawDoor(newShape, vect.angle);
         }
         if (type === 7) {
             newShape = new ShapeDoorWay(position);
@@ -161,26 +225,13 @@ class Render {
         }
 
         newShape.type = type;
-        this._shapes.push(newShape);
-
         newShape.renderObject.onMouseDown = () => {
-            this.selected = newShape;
+           this.selected = newShape;
         };
         newShape.renderObject.onMouseUp = () => {
             this.selected = null;
         };
         return newShape;
-    }
-
-    private drawShapeByZoom(shape: IShape, scale: number): void {
-        const position: paper.Point = this.renderApi.getNewCord(shape, this._center, scale);
-        shape.renderObject.position = position;
-        shape.renderObject.scale(scale);
-        shape.coordDraw = this.setCoordDraw(position);
-
-        if (shape.childrens) {
-            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child, scale));
-        }
     }
 
     private setCoordDraw(point: IPoint): IPoint {
@@ -194,21 +245,47 @@ class Render {
         }
     }
 
-    public drawWall(): any {
+    private _drawWallMouseDownHandler;
+    private _drawWallMouseMoveHandler;
+
+    public createWall(isChain: boolean): any {
+        this._selectedMode = false;
         const path: any = paper.Path;
         let line: any;
-        let drawShape: boolean = false;
         let startPoint: paper.Point = null;
 
-        let mouseDownHandler = null;
-        let mouseMoveHandler = null;
         let link: any = {};
         link = this;
-        let onMouseMove: any;
-        let onMouseDown: any
+        let cancelEvent;
 
-        let mouseDownEvent = function (event: any) {
-            drawShape = false;
+        const onMouseDown = (event: any, link: any) => {
+            if (this._drawWallMouseDownHandler && event.point.y < 35) {
+                cancelEvent(link);
+            } else if (this._drawWallMouseDownHandler) {
+                this._drawWallMouseDownHandler(event);
+            }
+        };
+        const onMouseMove = (event: any, link: any) => {
+                this._drawWallMouseMoveHandler(event);
+        };
+        cancelEvent = function (link: any) {
+            this._drawWallMouseDownHandler = null;
+            this._drawWallMouseMoveHandler = null;
+            startPoint = null;
+            if (line) {
+                line.remove();
+            }
+            line = null;
+            link._events.removeMouseDownListener(onMouseDown);
+            link._events.removeMouseMoveListener(onMouseMove);
+            link._selectedMode = true;
+        }
+
+        if (this._drawWallMouseDownHandler || this._drawWallMouseMoveHandler) {
+            cancelEvent(link);
+        }
+
+        this._drawWallMouseDownHandler = function (event: any) {
             startPoint = event.point;
             if (line) {
                 const position: ICoordinates = {
@@ -218,51 +295,82 @@ class Render {
                     y2: line.segments[1].point.y - link._offsetY
                 };
                 const newShape: IShape = link.createShape(1, position);
-                link.drawShape(newShape);
                 line.remove();
+                line = null;
+                if (!isChain) {
+                    startPoint = null;
+                }
             }
         }
 
-        let mouseMoveEvent = function (event: any) {
+        this._drawWallMouseMoveHandler = function (event: any) {
             if (startPoint) {
                 line = new path.Line(startPoint, event.point);
                 line.strokeColor = '#0088ff';
                 line.strokeWidth = 2;
                 startPoint = null;
-                drawShape = true;
-            } else if (drawShape) {
+            } else if (line) {
                 line.segments[line.segments.length - 1].point = event.point
             }
         }
 
-        let cancelEvent = function (link: any) {
-            mouseDownHandler = null;
-            mouseMoveHandler = null;
-            startPoint = null;
-            line.remove();
-            line = null;
-            drawShape = false;
-        }
-
-        onMouseDown = (event: any, link: any) => {
-            if (mouseDownHandler && event.point.y < 35) {
-                cancelEvent(link);
-            } else if (mouseDownHandler) {
-                mouseDownHandler(event);
-            }
-        };
-
-        onMouseMove = (event: any, link: any) => {
-            if (mouseMoveHandler) {
-                mouseMoveHandler(event);
-            }
-        };
-
-        mouseDownHandler = mouseDownEvent;
-        mouseMoveHandler = mouseMoveEvent;
-
         this._events.addMouseDownListener(onMouseDown);
         this._events.addMouseMoveListener(onMouseMove);
+    }
+
+    public createColumn(): any {
+        this._selectedMode = false;
+        let cancelEvent;
+        let link: any = {};
+        link = this;
+        const onMouseDown = (event: any) => {
+            if (event.point.y > 35) {
+                const position: ICoordinates = {
+                    x1: event.point.x - link._offsetX,
+                    y1: event.point.y - link._offsetY,
+                    x2: 0,
+                    y2: 0
+                };
+                const newShape: IShape = link.createShape(3, position);
+            } else {
+                cancelEvent();
+            }
+        };
+
+        cancelEvent = () => {
+            link._events.removeMouseDownListener(onMouseDown);
+            link._selectedMode = true;
+        }
+
+        this._events.addMouseDownListener(onMouseDown);
+    }
+
+    public createDoor(): any {
+        this._selectedMode = false;
+        let cancelEvent;
+        let link: any = {};
+        link = this;
+        const onMouseDown = (event: any) => {
+            if (event.point.y > 35 && this.selected && this.selected.type === 1) {
+                const position: ICoordinates = {
+                    x1: event.point.x - link._offsetX,
+                    y1: event.point.y - link._offsetY,
+                    x2: 0,
+                    y2: 0
+                };
+                const newShape: IShape = link.createShape(6, position);
+                this.selected.childrens.push(newShape);
+            } else {
+                cancelEvent();
+            }
+        };
+
+        cancelEvent = () => {
+            link._events.removeMouseDownListener(onMouseDown);
+            link._selectedMode = true;
+        }
+
+        this._events.addMouseDownListener(onMouseDown);
     }
 
     public createMenu(count: number): Array<paper.Group> {
@@ -270,7 +378,7 @@ class Render {
     }
 
     private mouseMoveListener(e: MouseEvent): void {
-        if (this._mouseDown) {
+        if (this._mouseDown) {            
             this._positionCurrentX = e.pageX - this._canvas.offsetLeft;
             this._positionCurrentY = e.pageY - this._canvas.offsetTop;
 

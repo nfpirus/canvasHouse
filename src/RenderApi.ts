@@ -8,7 +8,7 @@ class RenderApi {
         this.zoom = zoom;
     }
 
-    private getScale(): number {
+    public getScale(): number {
         let result: number = this.zoom;
         if (this.zoom == 0.25) {
             result = 0.51;
@@ -32,7 +32,7 @@ class RenderApi {
         const x1: number = shape.renderObject.position.x - center.x;
         const y1: number = shape.renderObject.position.y - center.y;
 
-        const r: number = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));;
+        const r: number = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
 
         const cosN: number = x1 / r;
         const sinN: number = y1 / r;
@@ -220,18 +220,34 @@ class RenderApi {
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
+        rect.rotate(vect.angle - 90, point1);
 
-        const result: paper.Group = new paper.Group([rect]);
-        result.rotate(vect.angle - 90, point1);
+        function getShapeLenght(cord: ICoordinates): string {
+            const result: number = Math.sqrt(Math.pow(cord.x2 - cord.x1, 2) + Math.pow(cord.y2 - cord.y1, 2));
+            return Math.floor(result).toString();
+        }
+
+        let text: paper.TextItem = new paper.PointText(new paper.Point((coordDraw.x1 + coordDraw.x2) / 2, (coordDraw.y1 + coordDraw.y2) / 2));
+        text.name = 'text';
+        text.position.y += width/3;
+        text.fontSize = 20;
+        text.fontWeight = 'bold';
+        text.content = 'Wall';
+        text.justification = 'center';
+        text.visible = false;
+
+        const result: paper.Group = new paper.Group([rect, text]);
         result.onMouseEnter = () => {
             rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
-            // TODO: Realize show Length
+            text.content = getShapeLenght(shape.coord);
+            text.visible = true;
         };
         result.onMouseLeave = () => {
             rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
-            // TODO: Realize hide Length
+            text.visible = false;
         }; 
         shape.renderObject = result;
+        result.pivot = new paper.Point(result.position.x, result.position.y);
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
@@ -256,15 +272,7 @@ class RenderApi {
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = new paper.Color(0.60, 0.73, 0.21, 0.5);
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;
-        text.rotate(90);
-        text.content = 'InnerWall'
-        */
+
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         result.onMouseEnter = () => {
@@ -293,8 +301,8 @@ class RenderApi {
     public drawColumn(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
         const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
-        const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
-        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+       // const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
+     //   const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
         const width: number = 20 * this.getScale();
         const length: number = 20 * this.getScale();
@@ -302,12 +310,13 @@ class RenderApi {
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
         rect.position.x -= width / 2;
+        rect.position.y -= length / 2;
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
 
         const result: paper.Group = new paper.Group([rect]);
-        result.rotate(vect.angle - 90, point1);
+      //  result.rotate(vect.angle - 90, point1);
         result.onMouseEnter = () => {
             rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
         };
@@ -402,19 +411,20 @@ class RenderApi {
         return result;
     }
 
-    public drawDoor(shape: IShape): paper.Group {
+    public drawDoor(shape: IShape, angle: number): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
         const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
-        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+    //    const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
+    //    
 
         const width: number = 20 * this.getScale();
         const smallwidth: number = 8 * this.getScale();
-        const length: number = point2.getDistance(point1, false);
+        const length: number = 80 * this.getScale();;//point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
         rect.position.x -= width / 2;
+        rect.position.y -= length / 2;
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = 'white';
@@ -422,12 +432,13 @@ class RenderApi {
         size = new paper.Size(smallwidth, length);
         let smallRect: paper.Path = paper.Path.Rectangle(point1, size);
         smallRect.position.x -= smallwidth / 2;
+        smallRect.position.y -= length / 2;
         smallRect.strokeColor = 'black';
         smallRect.name = 'smallrect';
         smallRect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
 
         const result: paper.Group = new paper.Group([rect, smallRect]);
-        result.rotate(vect.angle - 90, point1);
+        result.rotate(angle - 90, point1);
         result.onMouseEnter = () => {
             rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
             smallRect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);

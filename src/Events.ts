@@ -12,7 +12,7 @@ class Events {
         paper.project.activeLayer.onMouseDown = (event: any) => this.mouseDownListenerCall(event);
     }
 
-    private mouseMoveListenerCall(event: any) {        
+    private mouseMoveListenerCall(event: any) {
         if (this._mouseMoveListenerPool.length > 0) {
             this._mouseMoveListenerPool.forEach((listener: any) => listener(event, this._renderBind));
         }
