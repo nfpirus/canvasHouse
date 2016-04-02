@@ -2,6 +2,7 @@
 
 class RenderApi {
     public zoom: number;
+    private _menu: paper.Path = null;
 
     constructor(zoom: number) {
         this.zoom = zoom;
@@ -61,8 +62,8 @@ class RenderApi {
 
     public drawMenu(count: number, width: number, hight: number): Array<paper.Group> {
         const path: any = paper.Path;
-        const path1: paper.Path = new path.Rectangle(new paper.Point(0, 0), new paper.Point(width, 40));
-        path1.fillColor = '#f6f0e7';
+        this._menu = new path.Rectangle(new paper.Point(0, 0), new paper.Point(width, 40));
+        this._menu.fillColor = '#f6f0e7';
 
         const menuItem: Array<paper.Group> = new Array;
 
@@ -127,6 +128,10 @@ class RenderApi {
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
+
         return result;
     }
 
@@ -144,16 +149,8 @@ class RenderApi {
         rect.position.x -= width / 2;
         rect.strokeColor = 'black';
         rect.name = 'rect';
-        rect.fillColor = new paper.Color(0.30, 0.34, 0.1, 0.5);
-        /*
-        let text: paper.TextItem = new paper.PointText(point1);
-        text.name = 'text';
-        text.position.x += width / 2 + 1;
-        text.fillColor = 'red';
-        text.fontSize = 20;        
-        text.rotate(90);
-        text.content = 'OuterWall'
-        */
+        rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
+
         const result: paper.Group = new paper.Group([rect]);
         result.rotate(vect.angle - 90, point1);
         result.onMouseEnter = () => {
@@ -166,6 +163,10 @@ class RenderApi {
         }; 
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
 
         return result;
     }
@@ -207,6 +208,10 @@ class RenderApi {
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
+
         return result;
     }
 
@@ -242,6 +247,10 @@ class RenderApi {
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
+
         return result;
     }
 
@@ -271,6 +280,10 @@ class RenderApi {
         };    
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
 
         return result;
     }
@@ -312,6 +325,10 @@ class RenderApi {
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
+
         return result;
     }
 
@@ -352,6 +369,10 @@ class RenderApi {
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
+
         return result;
     }
 
@@ -381,6 +402,10 @@ class RenderApi {
         };  
         shape.renderObject = result;
         shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+
+        if (this._menu) {
+            result.insertBelow(this._menu);
+        }
 
         return result;
     }

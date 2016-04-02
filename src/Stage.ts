@@ -11,7 +11,7 @@
 class Stages {
     private _shapes: Array<IShape>;
     private _render: Render;
-    private _menu: Array<paper.Group>;
+    private _menu: Array<any>;
 
     constructor(stageContainer: HTMLDivElement) {
         

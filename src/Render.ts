@@ -71,16 +71,8 @@ class Render {
         return this._renderApi;
     }
 
-    //recursion ?
     private drawByZoom(): void {
-        this._shapes.forEach((item: IShape) => {
-            this.drawShapeByZoom(item);
-            if (item.childrens) {
-                item.childrens.forEach((child: IShape) => {
-                    this.drawShapeByZoom(child);
-                })
-            }
-        });
+        this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item));
         this.drawShapeByZoom(this._greed);
     }
 
@@ -88,14 +80,7 @@ class Render {
         this._shapes.forEach((item: IShape) => {
             if (item.coordDraw) {
                 this.drawShape(item);
-            }         
-            
-            if (item.childrens) {
-                item.childrens.forEach((child: IShape) => {
-                    this.drawShape(child);
-        });
-            }
-                    
+            }      
         });
         this.drawShape(this._greed);
     }
@@ -123,7 +108,7 @@ class Render {
         }
     }
 
-    public createShape(type: number, position: ICoordinates): void {
+    public createShape(type: number, position: ICoordinates): IShape {
         let newShape: IShape;
         let control1: IShape;
         let control2: IShape;
@@ -141,15 +126,6 @@ class Render {
             control2 = new ShapeControl(invertPosition);
 
             this.renderApi.drawOuterWall(newShape);
-            this.renderApi.drawControl(control1);
-            this.renderApi.drawControl(control2);
-
-            newShape.childrens.push(control1);
-            //cause unexpected troubles
-            //newShape.renderObject.addChild(control1.renderObject);
-
-            newShape.childrens.push(control2);
-            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 2) {
             newShape = new ShapeInnerWall(position);
@@ -157,14 +133,6 @@ class Render {
             control2 = new ShapeControl(invertPosition);
 
             this.renderApi.drawInnerWall(newShape);
-            this.renderApi.drawControl(control1);
-            this.renderApi.drawControl(control2);
-
-            newShape.childrens.push(control1);
-            //newShape.renderObject.addChild(control1.renderObject);
-
-            newShape.childrens.push(control2);
-            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 3) {
             newShape = new ShapeColumn(position);
@@ -176,14 +144,6 @@ class Render {
             control2 = new ShapeControl(invertPosition);
 
             this.renderApi.drawPartition(newShape);
-            this.renderApi.drawControl(control1);
-            this.renderApi.drawControl(control2);
-
-            newShape.childrens.push(control1);
-            //newShape.renderObject.addChild(control1.renderObject);
-
-            newShape.childrens.push(control2);
-            //newShape.renderObject.addChild(control2.renderObject);
         }
         if (type === 5) {
             newShape = new ShapeWindow(position);
@@ -197,6 +157,17 @@ class Render {
             newShape = new ShapeDoorWay(position);
             this.renderApi.drawDoorWay(newShape);
         }
+        if (control1 && control2) {
+            this.renderApi.drawControl(control1);
+            this.renderApi.drawControl(control2);
+
+            newShape.childrens.push(control1);
+            //cause unexpected troubles
+            //newShape.renderObject.addChild(control1.renderObject);
+
+            newShape.childrens.push(control2);
+            //newShape.renderObject.addChild(control2.renderObject);
+        }
 
         newShape.type = type;
         this._shapes.push(newShape);
@@ -207,6 +178,7 @@ class Render {
         newShape.renderObject.onMouseUp = () => {
             this.selected = null;
         };
+        return newShape;
     }
 
     private drawShapeByZoom(shape: IShape): void {
@@ -215,14 +187,8 @@ class Render {
         shape.renderObject.scale(this._renderApi.zoom);
         shape.coordDraw = this.setCoordDraw(position);
 
-        //Is it useful?
         if (shape.childrens) {
-            shape.childrens.forEach((child: IShape, i: number) => {
-                const position: paper.Point = this.renderApi.getNewCord(child, this._center);
-                child.renderObject.position = position;
-                child.renderObject.scale(this._renderApi.zoom);
-                child.coordDraw = this.setCoordDraw(position);
-            });
+            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child));
         }
     }
 
@@ -232,6 +198,9 @@ class Render {
 
     private drawShape(shape: IShape): void {
         shape.renderObject.position = new paper.Point(shape.coordDraw.x + this._offsetX, shape.coordDraw.y + this._offsetY);
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape) => this.drawShape(child));
+        }
     }
 
     public drawWall(): any {
@@ -252,12 +221,13 @@ class Render {
             startPoint = event.point;
             if (line) {
                 const position: ICoordinates = {
-                    x1: line.segments[0].point.x,
-                    y1: line.segments[0].point.y,
-                    x2: line.segments[1].point.x,
-                    y2: line.segments[1].point.y
+                    x1: line.segments[0].point.x - link._offsetX,
+                    y1: line.segments[0].point.y - link._offsetY,
+                    x2: line.segments[1].point.x - link._offsetX,
+                    y2: line.segments[1].point.y - link._offsetY
                 };
-                link.createShape(1, position);
+                const newShape: IShape = link.createShape(1, position);
+                link.drawShape(newShape);
                 line.remove();
             }
         }
@@ -302,7 +272,7 @@ class Render {
 
         this._events.addMouseDownListener(onMouseDown);
         this._events.addMouseMoveListener(onMouseMove);
-            }
+    }
 
     public createMenu(count: number): Array<paper.Group> {
         return this._renderApi.drawMenu(count, this._canvas.width , 40);
@@ -337,7 +307,6 @@ class Render {
     private get_maxMouseMove(): void {
         this._maxMouseMoveX = 0;
         this._maxMouseMoveY = 0;
-
         for (var i: number = 1; i < Math.min(this._mouseVelocityX.length, this._mouseDetectBound); i++) {
             this._maxMouseMoveX = (Math.abs(this._maxMouseMoveX) < Math.abs(this._mouseVelocityX[this._mouseVelocityX.length - i])) ? this._mouseVelocityX[this._mouseVelocityX.length - i] : this._maxMouseMoveX;
             this._maxMouseMoveY = (Math.abs(this._maxMouseMoveY) < Math.abs(this._mouseVelocityY[this._mouseVelocityY.length - i])) ? this._mouseVelocityY[this._mouseVelocityY.length - i] : this._maxMouseMoveY;
@@ -349,6 +318,7 @@ class Render {
         }
         this._maxMouseMove = Math.max(Math.abs(this._maxMouseMoveX), Math.abs(this._maxMouseMoveY));
         this._maxMouseMove = Math.min(this._maxMouseMove, this._animationBound);
+        
     }
 
     private stopPostAnimation(): void {
