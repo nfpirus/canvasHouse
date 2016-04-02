@@ -4,7 +4,7 @@
 class Render {
     private _canvas: HTMLCanvasElement;
     private _ctx: CanvasRenderingContext2D;
-    private _zoom: number = 0;
+    private _zoom: number = 1;
     private _shapes: Array<IShape>;
     private _renderApi: RenderApi;
     private _greed: IShape = new ShapeMenu();
@@ -60,7 +60,7 @@ class Render {
     public set zoom(value: number) {
         this._zoom = value;
         this._renderApi.zoom = value;
-        this.drawByZoom();
+        console.log(' zoom ', this._renderApi.zoom);
     }
 
     public get zoom(): number {
@@ -71,18 +71,9 @@ class Render {
         return this._renderApi;
     }
 
-    private drawByZoom(): void {
-        this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item));
-        this.drawShapeByZoom(this._greed);
-    }
-
-    private draw(): void {
-        this._shapes.forEach((item: IShape) => {
-            if (item.coordDraw) {
-                this.drawShape(item);
-            }      
-        });
-        this.drawShape(this._greed);
+    private drawByZoom(scale: number): void {
+        this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item, scale));
+        this.drawShapeByZoom(this._greed, scale);
     }
 
     private shapeMove(event: any, link): void {
@@ -181,14 +172,14 @@ class Render {
         return newShape;
     }
 
-    private drawShapeByZoom(shape: IShape): void {
-        const position: paper.Point = this.renderApi.getNewCord(shape, this._center);
+    private drawShapeByZoom(shape: IShape, scale: number): void {
+        const position: paper.Point = this.renderApi.getNewCord(shape, this._center, scale);
         shape.renderObject.position = position;
-        shape.renderObject.scale(this._renderApi.zoom);
+        shape.renderObject.scale(scale);
         shape.coordDraw = this.setCoordDraw(position);
 
         if (shape.childrens) {
-            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child));
+            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child, scale));
         }
     }
 
@@ -337,6 +328,16 @@ class Render {
         this._mouseDown = false;
     }
 
+    private reDrawStage(): void {
+        this._shapes.forEach((item: IShape) => {
+            if (item.coordDraw) {
+                this.drawShape(item);
+            }
+        });
+        this.drawShape(this._greed);
+        paper.project.view.update();
+    }
+
     private moveStage(): void {
         if (this._mouseDown === false) {
             if (this._mouseTimeMove[this._mouseTimeMove.length - 1] + this._durationPostAnimation * this._maxMouseMove < Date.now()) {
@@ -347,7 +348,7 @@ class Render {
             this._offsetX = Math.round(this._offsetX + (this._differenceX + this._maxMouseMoveX) / this._delta);
             this._offsetY = Math.round(this._offsetY + (this._differenceY + this._maxMouseMoveY) / this._delta);
         }
-        this.draw();
+        this.reDrawStage();
         this._requestAnimationFrameID = requestAnimationFrame(this.moveStage.bind(this));
     }
 
@@ -366,10 +367,24 @@ class Render {
         }
     }
 
+    private wheelListener(e: WheelEvent): void {
+        let scale: number = 1;
+        if (e.deltaY > 0 && this.zoom < 2) {
+            this.zoom = this.zoom + 0.25;
+            scale = 1.25;
+        } else if (e.deltaY < 0 && this.zoom > 0.25){
+            this.zoom = this.zoom - 0.25;
+            scale = 0.8;
+        }
+        this.drawByZoom(scale);
+        paper.project.view.update();
+    }
+
     public mouseDetect(): void {
         this._canvas.addEventListener('mousedown', (event: MouseEvent) => this.mouseDownListener(event), false);
         this._canvas.addEventListener('mousemove', (event: MouseEvent) => this.mouseMoveListener(event), false);
         this._canvas.addEventListener('mouseup', (event: MouseEvent) => this.mouseUpListener(event), false);
         this._canvas.addEventListener('mouseout', (event: MouseEvent) => this.mouseOutListener(event), false);
+        this._canvas.addEventListener('mousewheel', (event: WheelEvent) => this.wheelListener(event), false);
     }
 }

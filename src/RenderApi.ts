@@ -8,7 +8,27 @@ class RenderApi {
         this.zoom = zoom;
     }
 
-    public getNewCord(shape: IShape, center: paper.Point): paper.Point {
+    private getScale(): number {
+        let result: number = this.zoom;
+        if (this.zoom == 0.25) {
+            result = 0.51;
+        } else if (this.zoom == 0.5) {
+            result = 0.62;
+        } else if (this.zoom == 0.75) {
+            result = 0.8;
+        } else if (this.zoom == 1.25) {
+            result = 1.25;
+        } else if (this.zoom == 1.5) {
+            result = 1.60;
+        } else if (this.zoom == 1.75) {
+            result = 1.95;
+        } else if (this.zoom == 2) {
+            result = 2.45;
+        }
+        return result;
+    }
+
+    public getNewCord(shape: IShape, center: paper.Point, scale: number): paper.Point {
         const x1: number = shape.renderObject.position.x - center.x;
         const y1: number = shape.renderObject.position.y - center.y;
 
@@ -17,8 +37,8 @@ class RenderApi {
         const cosN: number = x1 / r;
         const sinN: number = y1 / r;
 
-        const x2: number = center.x + r * cosN * this.zoom;
-        const y2: number = center.y + r * sinN * this.zoom;
+        const x2: number = center.x + r * cosN * scale;
+        const y2: number = center.y + r * sinN * scale;
 
         const result: paper.Point = new paper.Point(x2, y2);
 
@@ -66,19 +86,22 @@ class RenderApi {
         this._menu.fillColor = '#f6f0e7';
 
         const menuItem: Array<paper.Group> = new Array;
-
         const point1: paper.Point = new paper.Point(0, 0);
         const margin: number = 5;
         const heightItem: number = hight - margin;
         const widthItem: number = 100;
-        
 
         let i: number;
         for (i = 0; i < count; i++) {
 
+            const icon: paper.Raster = new paper.Raster('icon/menu' + i + '.png');
+            icon.position = new paper.Point(point1.x + 16 , point1.y + 16);
+            icon.scale(0.25);
+
             const point2: paper.Point = new paper.Point(point1.x + widthItem, point1.y + heightItem);
             const button: paper.Path = new path.Rectangle(point1, point2);
-
+            const outSelect: paper.Path = new path.Rectangle(point1, new paper.Point(point1.x + widthItem, point1.y + heightItem + 4 * 20));
+            outSelect.fillColor = new paper.Color(0, 0, 0, 0.0);
             button.fillColor = '#f6f0e7';
 
             const text = new paper.PointText(new paper.Point(point1.x + 60, point1.y + 22));
@@ -86,14 +109,20 @@ class RenderApi {
             text.fillColor = '#956429';
             text.content = 'Button ' + i;
 
-            const group = new paper.Group([button, text]);
+            const subMenu: paper.Group = this.drawSubMenu(4, point1.x);
+            subMenu.visible = false;
+
+            const group = new paper.Group([outSelect, button, text, subMenu, icon]);
+
             group.onMouseEnter = function (event) {
-                this.children[0].fillColor = '#ffbb80';
+                this.children[1].fillColor = '#ffbb80';
+                this.children[3].visible = true;
                 document.body.style.cursor = "pointer";
             }
 
             group.onMouseLeave = function (event) {
-                this.children[0].fillColor = '#f6f0e7';
+                this.children[1].fillColor = '#f6f0e7';
+                this.children[3].visible = false;
                 document.body.style.cursor = "default";
             }
             menuItem.push(group);
@@ -102,13 +131,54 @@ class RenderApi {
         return menuItem;
     }
 
+    public drawSubMenu(count: number, positionStartX: number): paper.Group {
+        let subMenu: paper.Group;
+        const point1: paper.Point = new paper.Point(positionStartX, 40);
+        let point2: paper.Point;
+        const margin: number = 5;
+        const heightItem: number = 20
+        const widthItem: number = 150;
+
+        const path: any = paper.Path;
+        const subMenuItems: Array<paper.Group> = new Array;
+
+        let i: number;
+        for (i = 0; i < count; i++) {
+
+            point2 = new paper.Point(point1.x + widthItem, point1.y + heightItem);
+            const button: paper.Path = new path.Rectangle(point1, point2);
+            button.fillColor = '#f6f0e7';
+
+            const text = new paper.PointText(new paper.Point(point1.x + 10, point1.y + 13));
+
+            text.fillColor = '#D7CDC1';//'#956429';
+            text.content = 'Button ' + i;
+
+            const subMenuItem: paper.Group = new paper.Group([button, text]);
+            subMenuItem.onMouseEnter = function (event) {
+                this.children[0].fillColor = '#ffbb80';
+            }
+
+            subMenuItem.onMouseLeave = function (event) {
+                this.children[0].fillColor = '#f6f0e7';
+            }
+
+            subMenuItems.push(subMenuItem);
+            point1.y = point1.y + heightItem;
+        }
+
+        subMenu = new paper.Group();
+        subMenu.addChildren(subMenuItems);
+        return subMenu;
+    }
+
     public drawControl(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
         const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
         const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
 
-        const width: number = 8;
-        const length: number = 8;
+        const width: number = 8 * this.getScale();
+        const length: number = 8 * this.getScale();
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -140,8 +210,8 @@ class RenderApi {
         const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
         const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
-        
-        const width: number = 20;
+
+        const width: number = 20 * this.getScale();
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -177,7 +247,7 @@ class RenderApi {
         const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const width: number = 20;
+        const width: number = 20 * this.getScale();
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -226,8 +296,8 @@ class RenderApi {
         const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const width: number = 20;
-        const length: number = 20;
+        const width: number = 20 * this.getScale();
+        const length: number = 20 * this.getScale();
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -260,7 +330,7 @@ class RenderApi {
         const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const width: number = 8;
+        const width: number = 8 * this.getScale();
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -294,8 +364,8 @@ class RenderApi {
         const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const width: number = 20;
-        const smallwidth: number = 8;
+        const width: number = 20 * this.getScale();
+        const smallwidth: number = 8 * this.getScale();
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -338,8 +408,8 @@ class RenderApi {
         const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const width: number = 20;
-        const smallwidth: number = 8;
+        const width: number = 20 * this.getScale();
+        const smallwidth: number = 8 * this.getScale();
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -382,8 +452,8 @@ class RenderApi {
         const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
         const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
 
-        const width: number = 20;
-        const length: number = point2.getDistance(point1, false);
+        const width: number = 20 * this.getScale();
+        const length: number = point2.getDistance(point1, false) * this.getScale();
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
