@@ -1,8 +1,8 @@
 /// <reference path="../dist/paper.d.ts"/>
 interface IShape {
     type: number;
-    coord: ICoordinates;
-    coordDraw: IPoint;
+    point1: IPoint;
+    point2: IPoint;
     childrens: Array<IShape>;
     valid: boolean;
     renderObject: paper.Group;

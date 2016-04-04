@@ -41,7 +41,7 @@ class Render {
     private _events: Events;
 
     constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {
-        this._renderApi = new RenderApi(this._zoom);
+        
         this._shapes = shapes;
         this._canvas = document.createElement('canvas');
         this._canvas.width = window.innerWidth;
@@ -51,9 +51,12 @@ class Render {
         this._ctx = this._canvas.getContext('2d');
         paper.setup(this._canvas);
 
-        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height);
+        
         this.mouseDetect();
         this._center = new paper.Point(this._canvas.width / 2, this._canvas.height / 2);
+        this._renderApi = new RenderApi(this._zoom, this._center);
+        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height);
+
 
         this._events = new Events(this);
         this._events.addMouseMoveListener(this.shapeMove);
@@ -72,27 +75,40 @@ class Render {
         return this._renderApi;
     }
 
-    private drawByZoom(scale: number): void {
-        this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item, scale));
-        this.drawShapeByZoom(this._greed, scale);
+    private drawShape(shape: IShape): void {
+        if (shape.type === 1) {
+            this.renderApi.reDrawOuterWall(shape, this._offsetX, this._offsetY);
+        }
+
+        /*
+        shape.renderObject.position = new paper.Point(shape.coordDraw.x + this._offsetX, shape.coordDraw.y + this._offsetY);
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape) => this.drawShape(child));
+        }*/
+
     }
 
-    private drawShapeByZoom(shape: IShape, scale: number): void {
-        const position: paper.Point = this.renderApi.getNewCord(shape, this._center, scale);
-        shape.renderObject.position = position;
-        shape.renderObject.scale(scale);
-        shape.coordDraw = this.setCoordDraw(position);
+    private drawByZoom(): void {
+        this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item));
+      //  this.drawShapeByZoom(this._greed, scale);
+    }
 
+    private drawShapeByZoom(shape: IShape): void {
+        if (shape.type === 1) {
+            this.renderApi.reDrawOuterWall(shape, this._offsetX, this._offsetY);
+        }
         if (shape.childrens) {
-            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child, scale));
+            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child));
         }
     }
 
+
     private shapeMove(event: any, link): void {
         if (link.selected && link._selectedMode) {
+            /*
             link.selected.renderObject.position = event.point;
-            link.selected.coordDraw = link.setCoordDraw(event.point);
-            
+            link.selected.coordDraw = link.setCoordDraw(event.point);*/
+            /*
             if (link.selected.childrens) {
                 link.selected.childrens.forEach((child: IShape, i: number) => {
                     if (child.type === 0) {
@@ -111,7 +127,7 @@ class Render {
                     }
                 });
             }
-            
+            */
             // TODO: Realize set this.selected.coord
         }
     }
@@ -166,13 +182,12 @@ class Render {
         }
 
         if (type === 1) {
-            newShape = new ShapeOuterWall(position);
-            control1 = new ShapeControl(position);
-            control2 = new ShapeControl(invertPosition);
-
-            this.renderApi.drawOuterWall(newShape);
+            newShape = new ShapeOuterWall(this._renderApi.originalPosition(position.x1, position.y1), this._renderApi.originalPosition(position.x2, position.y2));
+          //  control1 = new ShapeControl(position);
+         //   control2 = new ShapeControl(invertPosition);
+            this.renderApi.drawOuterWall(newShape, this._offsetX, this._offsetY);
             this._shapes.push(newShape);
-        }
+        }/*
         if (type === 2) {
             newShape = new ShapeInnerWall(position);
             control1 = new ShapeControl(position);
@@ -222,7 +237,7 @@ class Render {
 
             newShape.childrens.push(control2);
             //newShape.renderObject.addChild(control2.renderObject);
-        }
+        }*/
 
         newShape.type = type;
         newShape.renderObject.onMouseDown = () => {
@@ -238,12 +253,6 @@ class Render {
         return new paper.Point(point.x - this._offsetX, point.y - this._offsetY);
     }
 
-    private drawShape(shape: IShape): void {
-        shape.renderObject.position = new paper.Point(shape.coordDraw.x + this._offsetX, shape.coordDraw.y + this._offsetY);
-        if (shape.childrens) {
-            shape.childrens.forEach((child: IShape) => this.drawShape(child));
-        }
-    }
 
     private _drawWallMouseDownHandler;
     private _drawWallMouseMoveHandler;
@@ -289,11 +298,12 @@ class Render {
             startPoint = event.point;
             if (line) {
                 const position: ICoordinates = {
-                    x1: line.segments[0].point.x - link._offsetX,
-                    y1: line.segments[0].point.y - link._offsetY,
-                    x2: line.segments[1].point.x - link._offsetX,
-                    y2: line.segments[1].point.y - link._offsetY
+                    x1: line.segments[0].point.x - link._offsetX * this._zoom,
+                    y1: line.segments[0].point.y - link._offsetY * this._zoom,
+                    x2: line.segments[1].point.x - link._offsetX * this._zoom,
+                    y2: line.segments[1].point.y - link._offsetY * this._zoom
                 };
+
                 const newShape: IShape = link.createShape(1, position);
                 line.remove();
                 line = null;
@@ -436,13 +446,11 @@ class Render {
         this._mouseDown = false;
     }
 
-    private reDrawStage(): void {
-        this._shapes.forEach((item: IShape) => {
-            if (item.coordDraw) {
-                this.drawShape(item);
-            }
-        });
-        this.drawShape(this._greed);
+    private reDrawStage(): void {        
+        this._shapes.forEach((item: IShape) => this.drawShape(item));
+        this._greed.renderObject.position.x = this._greed.point1.x + this._offsetX;
+        this._greed.renderObject.position.y = this._greed.point1.y + this._offsetY;
+       // this.drawShape(this._greed);        
         paper.project.view.update();
     }
 
@@ -475,16 +483,14 @@ class Render {
         }
     }
 
-    private wheelListener(e: WheelEvent): void {
-        let scale: number = 1;
+    private wheelListener(e: WheelEvent): void {        
         if (e.deltaY > 0 && this.zoom < 2) {
             this.zoom = this.zoom + 0.25;
-            scale = 1.25;
         } else if (e.deltaY < 0 && this.zoom > 0.25){
             this.zoom = this.zoom - 0.25;
-            scale = 0.8;
         }
-        this.drawByZoom(scale);
+        
+        this.drawByZoom();
         paper.project.view.update();
     }
 

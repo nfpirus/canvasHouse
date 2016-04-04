@@ -1,14 +1,14 @@
 ﻿/// <reference path="../../dist/paper.d.ts"/>
 class ShapeInnerWall implements IShape {
     public type: number = 2;
-    public coord: ICoordinates;
-    public coordDraw: IPoint;
+    public point1: IPoint;
+    public point2: IPoint;
     public childrens: Array<IShape>;
     public valid: boolean;
     public renderObject: paper.Group;
 
-    constructor(coordinates: ICoordinates) {
-        this.coord = coordinates;
-        this.childrens = [];
+    constructor(point1: IPoint, point2: IPoint) {
+        this.point1 = point1;
+        this.point2 = point2;
     }
 }
