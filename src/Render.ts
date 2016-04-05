@@ -42,8 +42,7 @@ class Render {
 
     private _events: Events;
 
-    constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {
-        
+    constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {        
         this._shapes = shapes;
         this._canvas = document.createElement('canvas');
         this._canvas.width = window.innerWidth;
@@ -60,7 +59,6 @@ class Render {
         this._renderApi = new RenderApi(this._zoom, this._center);
         this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, 0, 0);
 
-
         this._events = new Events(this);
         this._events.addMouseMoveListener(this.moveShapeListener);
 
@@ -70,15 +68,7 @@ class Render {
         this._zoom = value;
         this._renderApi.zoom = value;
     }
-
-    public get zoom(): number {
-        return this._zoom;
-    }
-
-    public get renderApi(): RenderApi {
-        return this._renderApi;
-    }
-
+    
     private reDraw(): void {
         this._shapes.forEach((item: IShape) => this.reDrawShape(item));
         this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, this._offsetX, this._offsetY);
@@ -86,15 +76,7 @@ class Render {
     }
 
     private reDrawShape(shape: IShape): void {
-        if (shape.type === 1) {
-            this.renderApi.reDrawOuterWall(shape, this._offsetX, this._offsetY);
-        }
-        if (shape.type === 11 || shape.type === 12) {
-            this.renderApi.drawControl(shape, this._offsetX, this._offsetY);
-        }
-        if (shape.childrens) {
-            shape.childrens.forEach((child: IShape) => this.reDrawShape(child));
-        }
+        this._renderApi.renderShape(shape, this._offsetX, this._offsetY);
     }
 
     private moveShape(shape: IShape, moveX: number, moveY: number): void {
@@ -125,65 +107,27 @@ class Render {
                 link.selected.parent.point2.x = link.selected.parent.point2.x + moveX / link._zoom;
                 link.selected.parent.point2.y = link.selected.parent.point2.y + moveY / link._zoom;
                 link.reDrawShape(link.selected.parent);
-            }            
+            }
             link._selectedPoint = curentPoint;
         }
     }
 
+    public np(point: IPoint): IPoint {
+        return new paper.Point(point.x, point.y);
+    }
+
     public createShape(type: number, position: ICoordinates): IShape {
-
-        function VDot(v1: IPoint, v2: IPoint): number {
-            return v1.x * v2.x + v1.y * v2.y
-        }
-        function VMul(v1: IPoint, A: number): IPoint {
-            const result: IPoint = new paper.Point(0, 0);
-            result.x = v1.x * A;
-            result.y = v1.y * A;
-            return result;
-        }
-        function VSub(v1: IPoint, v2: IPoint): IPoint {
-            const result: IPoint = new paper.Point(0, 0);
-            result.x = v1.x - v2.x;
-            result.y = v1.y - v2.y;
-            return result;
-        }
-        function VNorm(V): IPoint {
-            const result: IPoint = new paper.Point(0, 0);
-            var vl;
-            vl = Math.sqrt(V.x * V.x + V.y * V.y);
-            result.x = V.x / vl;
-            result.y = V.y / vl;
-            return result;
-        }
-        function VProject(A: IPoint, B: IPoint): IPoint {
-            let result: IPoint = new paper.Point(0, 0);
-            A = VNorm(A);
-            result = VMul(A, VDot(A, B));
-            return result
-        }
-        function Perpendicular(A: IPoint, B: IPoint, C: IPoint): IPoint {
-            let result: IPoint = new paper.Point(0, 0);
-            var CA = VSub(C, A);
-            result = VSub(VProject(VSub(B, A), CA), CA);
-            return result;
-        }
-
         let newShape: IShape;
         let control1: IShape;
         let control2: IShape;
-
-        let invertPosition = {
-            x1: position.x2,
-            y1: position.y2,
-            x2: position.x1,
-            y2: position.y1
-        }
+        const point1: IPoint = this._renderApi.originalPosition(position.x1, position.y1);
+        const point2: IPoint = this._renderApi.originalPosition(position.x2, position.y2);
 
         if (type === 1) {
-            newShape = new ShapeOuterWall(this._renderApi.originalPosition(position.x1, position.y1), this._renderApi.originalPosition(position.x2, position.y2));
-            control1 = new ShapeControl(this._renderApi.originalPosition(position.x1, position.y1), this._renderApi.originalPosition(position.x2, position.y2));
-            control2 = new ShapeControl(this._renderApi.originalPosition(position.x2, position.y2), this._renderApi.originalPosition(position.x1, position.y1));
-            this.renderApi.reDrawOuterWall(newShape, this._offsetX, this._offsetY);
+            newShape = new ShapeOuterWall(point1, point2);
+            control1 = new ShapeControl(this.np(point1), this.np(point2));
+            control2 = new ShapeControl(this.np(point2), this.np(point1));
+            this._renderApi.reDrawOuterWall(newShape, this._offsetX, this._offsetY);
             this._shapes.push(newShape);
         }/*
         if (type === 2) {
@@ -191,43 +135,40 @@ class Render {
             control1 = new ShapeControl(position);
             control2 = new ShapeControl(invertPosition);
 
-            this.renderApi.drawInnerWall(newShape);
+            this._renderApi.drawInnerWall(newShape);
             this._shapes.push(newShape);
-        }
+        }*/
         if (type === 3) {
-            newShape = new ShapeColumn(position);
-            this.renderApi.drawColumn(newShape);
+            newShape = new ShapeColumn(point1, point1);
+            this._renderApi.drawColumn(newShape, this._offsetX, this._offsetY);
             this._shapes.push(newShape);
-        }
+        }/*
         if (type === 4) {
             newShape = new ShapePartition(position);
             control1 = new ShapeControl(position);
             control2 = new ShapeControl(invertPosition);
 
-            this.renderApi.drawPartition(newShape);
+            this._renderApi.drawPartition(newShape);
         }
         if (type === 5) {
             newShape = new ShapeWindow(position);
-            this.renderApi.drawWindow(newShape);
-        }
+            this._renderApi.drawWindow(newShape);
+        }*/
         if (type === 6) {
-            const vect: paper.Point = new paper.Point(this.selected.coord.x2 - this.selected.coord.x1, this.selected.coord.y2 - this.selected.coord.y1);
-            const point1: IPoint = new paper.Point(this.selected.coord.x1, this.selected.coord.y1);
-            const point2: IPoint = new paper.Point(this.selected.coord.x2, this.selected.coord.y2);
-            const point3: IPoint = new paper.Point(position.x1, position.y1);
-            const point4: IPoint = Perpendicular(point1, point2, point3);
-            position.x1 = position.x1 + point4.x;
-            position.y1 = position.y1 + point4.y;
-            newShape = new ShapeDoor(position);
-            this.renderApi.drawDoor(newShape, vect.angle);
-        }
+            const pointA: IPoint = new paper.Point(this.selected.point1.x, this.selected.point1.y);
+            const pointB: IPoint = new paper.Point(this.selected.point2.x, this.selected.point2.y);            
+            const correctionPoint: IPoint = this._renderApi.getNormal(pointA, pointB, point1);
+            const point3: IPoint = new paper.Point(point1.x + correctionPoint.x, point1.y + correctionPoint.y);
+            newShape = new ShapeDoor(point3, pointB);
+            this._renderApi.drawDoor(newShape, this._offsetX, this._offsetY);
+        }/*
         if (type === 7) {
             newShape = new ShapeDoorWay(position);
-            this.renderApi.drawDoorWay(newShape);
+            this._renderApi.drawDoorWay(newShape);
         }*/
         if (control1 && control2) {
-            this.renderApi.drawControl(control1, this._offsetX, this._offsetY);
-            this.renderApi.drawControl(control2, this._offsetX, this._offsetY);
+            this._renderApi.drawControl(control1, this._offsetX, this._offsetY);
+            this._renderApi.drawControl(control2, this._offsetX, this._offsetY);
 
             control1.type = 11;
             control2.type = 12;
@@ -269,7 +210,6 @@ class Render {
         return newShape;
     }
 
-// ---------------------------------
     private _drawWallMouseDownHandler;
     private _drawWallMouseMoveHandler;
 
@@ -352,8 +292,8 @@ class Render {
         const onMouseDown = (event: any) => {
             if (event.point.y > 35) {
                 const position: ICoordinates = {
-                    x1: event.point.x - link._offsetX,
-                    y1: event.point.y - link._offsetY,
+                    x1: event.point.x - link._offsetX * this._zoom,
+                    y1: event.point.y - link._offsetY * this._zoom,
                     x2: 0,
                     y2: 0
                 };
@@ -379,8 +319,8 @@ class Render {
         const onMouseDown = (event: any) => {
             if (event.point.y > 35 && this.selected && this.selected.type === 1) {
                 const position: ICoordinates = {
-                    x1: event.point.x - link._offsetX,
-                    y1: event.point.y - link._offsetY,
+                    x1: event.point.x - link._offsetX * this._zoom,
+                    y1: event.point.y - link._offsetY * this._zoom,
                     x2: 0,
                     y2: 0
                 };
@@ -419,11 +359,11 @@ class Render {
             this._mouseVelocityX.push(Math.round((this._mousePathX[this._mousePathX.length - 2] - this._positionCurrentX) / (this._mouseTimeMove[this._mouseTimeMove.length - 2] - this._mouseTimeMove[this._mouseTimeMove.length - 1])));
             this._mouseVelocityY.push(Math.round((this._mousePathY[this._mousePathY.length - 2] - this._positionCurrentY) / (this._mouseTimeMove[this._mouseTimeMove.length - 2] - this._mouseTimeMove[this._mouseTimeMove.length - 1])));
 
-            this._differenceX = (this._positionCurrentX - this._positionStartX) / this.zoom;
+            this._differenceX = (this._positionCurrentX - this._positionStartX) / this._zoom;
             this._offsetX = this._offsetX + this._differenceX + this._mouseVelocityX[this._mouseVelocityX.length - 1];
             this._positionStartX = this._positionCurrentX;
 
-            this._differenceY = (this._positionCurrentY - this._positionStartY) / this.zoom;
+            this._differenceY = (this._positionCurrentY - this._positionStartY) / this._zoom;
             this._offsetY = this._offsetY + this._differenceY + this._mouseVelocityY[this._mouseVelocityY.length - 1];
             this._positionStartY = this._positionCurrentY;
         }
@@ -492,10 +432,10 @@ class Render {
     }
 
     private wheelListener(e: WheelEvent): void {        
-        if (e.deltaY > 0 && this.zoom < 2) {
-            this.zoom = this.zoom + 0.25;
-        } else if (e.deltaY < 0 && this.zoom > 0.25){
-            this.zoom = this.zoom - 0.25;
+        if (e.deltaY > 0 && this._zoom < 2) {
+            this.zoom = this._zoom + 0.25;
+        } else if (e.deltaY < 0 && this._zoom > 0.25){
+            this.zoom = this._zoom - 0.25;
         }        
         this.reDraw();
     }

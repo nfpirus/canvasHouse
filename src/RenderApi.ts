@@ -48,7 +48,6 @@ class RenderApi {
         return result;
     }
     
-
     public drawGreed(shape: IShape, winWidth, winHeight, offsetX: number, offsetY: number): paper.Group {
         let i: number;
         const high: number = 80;
@@ -184,6 +183,21 @@ class RenderApi {
         return subMenu;
     }
     
+    public renderShape(shape: IShape, offsetX: number, offsetY: number): void {
+        if (shape.type === 1) {
+            this.reDrawOuterWall(shape, offsetX, offsetY);
+        }
+        if (shape.type === 6) {
+            this.drawDoor(shape, offsetX, offsetY);
+        }
+        if (shape.type === 11 || shape.type === 12) {
+            this.drawControl(shape, offsetX, offsetY);
+        }
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape) => this.renderShape(child, offsetX, offsetY));
+        }
+    }
+
     public drawControl(shape: IShape, offsetX: number, offsetY: number): paper.Group {
         const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
         const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
@@ -422,6 +436,7 @@ class RenderApi {
     public drawDoor(shape: IShape, offsetX: number, offsetY: number): paper.Group {
         const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
         const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
+        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
         const width: number = 20 * this.zoom;
         const smallwidth: number = 8 * this.zoom;
@@ -434,6 +449,7 @@ class RenderApi {
         rect.strokeColor = 'black';
         rect.name = 'rect';
         rect.fillColor = 'white';
+        rect.rotate(vect.angle - 90, point1);
 
         size = new paper.Size(smallwidth, length);
         let smallRect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -442,24 +458,34 @@ class RenderApi {
         smallRect.strokeColor = 'black';
         smallRect.name = 'smallrect';
         smallRect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
+        smallRect.rotate(vect.angle - 90, point1);
 
-        const result: paper.Group = new paper.Group([rect, smallRect]);
-      //  result.rotate(angle - 90, point1);
-        result.onMouseEnter = () => {
-            rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
-            smallRect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
-        };
-        result.onMouseLeave = () => {
-            rect.strokeColor = 'black';
-            smallRect.strokeColor = 'black';
-        };
-        shape.renderObject = result;
-       // shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+        let result: paper.Group;
+        if (shape.renderObject && shape.renderObject.children[0]) {            
+            smallRect.insertBelow(shape.renderObject);
+            rect.insertBelow(shape.renderObject);
 
-        if (this._menu) {
-            result.insertBelow(this._menu);
+            shape.renderObject.children[1].remove();
+            shape.renderObject.children[0].remove();
+
+            shape.renderObject.addChild(rect);
+            shape.renderObject.addChild(smallRect);            
+        } else {
+            result = new paper.Group([rect, smallRect]);
+
+            result.onMouseEnter = () => {
+                shape.renderObject.children[0].strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+                shape.renderObject.children[1].strokeColor = new paper.Color(0, 0.45, 1, 0.5);
+            };
+            result.onMouseLeave = () => {
+                shape.renderObject.children[0].strokeColor = 'black';
+                shape.renderObject.children[1].strokeColor = 'black';
+            };
+            shape.renderObject = result;
+            if (this._menu) {
+                result.insertBelow(this._menu);
+            }
         }
-
         return result;
     }
 
@@ -496,4 +522,40 @@ class RenderApi {
         return result;
     }
 
+    public getNormal(A: IPoint, B: IPoint, C: IPoint): IPoint {
+        function VDot(v1: IPoint, v2: IPoint): number {
+            return v1.x * v2.x + v1.y * v2.y
+        }
+        function VMul(v1: IPoint, A: number): IPoint {
+            const result: IPoint = new paper.Point(0, 0);
+            result.x = v1.x * A;
+            result.y = v1.y * A;
+            return result;
+        }
+        function VSub(v1: IPoint, v2: IPoint): IPoint {
+            const result: IPoint = new paper.Point(0, 0);
+            result.x = v1.x - v2.x;
+            result.y = v1.y - v2.y;
+            return result;
+        }
+        function VNorm(V): IPoint {
+            const result: IPoint = new paper.Point(0, 0);
+            var vl;
+            vl = Math.sqrt(V.x * V.x + V.y * V.y);
+            result.x = V.x / vl;
+            result.y = V.y / vl;
+            return result;
+        }
+        function VProject(A: IPoint, B: IPoint): IPoint {
+            let result: IPoint = new paper.Point(0, 0);
+            A = VNorm(A);
+            result = VMul(A, VDot(A, B));
+            return result
+        }
+
+        let result: IPoint = new paper.Point(0, 0);
+        var CA = VSub(C, A);
+        result = VSub(VProject(VSub(B, A), CA), CA);
+        return result;
+    }
 }

@@ -59,16 +59,13 @@ class Stages {
         this._menu[2].children[3].children[1].onClick = () => this._render.createWall(true);
         this._menu[2].children[3].children[2].children[1].content = 'Добавить коробку стен';
         this._menu[2].children[3].children[3].children[1].content = 'Добавить столб';
-        /*
         this._menu[2].children[3].children[3].children[1].fillColor = '#956429';
         this._menu[2].children[3].children[3].onClick = () => this._render.createColumn();
-        */
+        
         this._menu[3].children[2].content = 'Проём';
         this._menu[3].children[3].children[0].children[1].content = 'Добавить дверь';
-        /*
         this._menu[3].children[3].children[0].children[1].fillColor = '#956429';
         this._menu[3].children[3].children[0].onClick = () => this._render.createDoor();
-        */
         this._menu[3].children[3].children[1].children[1].content = 'Добавить окно';
         this._menu[3].children[3].children[2].children[1].content = 'Пустой проём';
         this._menu[3].children[3].children[3].visible = false;
