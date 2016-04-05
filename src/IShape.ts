@@ -6,4 +6,5 @@ interface IShape {
     childrens: Array<IShape>;
     valid: boolean;
     renderObject: paper.Group;
+    parent: IShape;
 }

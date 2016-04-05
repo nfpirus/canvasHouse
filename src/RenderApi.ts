@@ -10,43 +10,6 @@ class RenderApi {
         this.center = center;
     }
 
-    public getScale(): number {
-        let result: number = this.zoom;
-        if (this.zoom == 0.25) {
-            result = 0.51;
-        } else if (this.zoom == 0.5) {
-            result = 0.62;
-        } else if (this.zoom == 0.75) {
-            result = 0.8;
-        } else if (this.zoom == 1.25) {
-            result = 1.25;
-        } else if (this.zoom == 1.5) {
-            result = 1.60;
-        } else if (this.zoom == 1.75) {
-            result = 1.95;
-        } else if (this.zoom == 2) {
-            result = 2.45;
-        }
-        return result;
-    }
-
-    public getNewCord(shape: IShape, center: paper.Point): paper.Point {
-        const x1: number = shape.renderObject.position.x - center.x;
-        const y1: number = shape.renderObject.position.y - center.y;
-
-        const r: number = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
-
-        const cosN: number = x1 / r;
-        const sinN: number = y1 / r;
-
-        const x2: number = center.x + r * cosN * this.zoom;
-        const y2: number = center.y + r * sinN * this.zoom;
-
-        const result: paper.Point = new paper.Point(x2, y2);
-
-        return result;
-    }
-
     public static getShapeLenght(point1: IPoint, point2: IPoint): string {
         const result: number = Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
         return Math.floor(result).toString();
@@ -85,10 +48,8 @@ class RenderApi {
         return result;
     }
     
-    public drawGreed(shape: IShape, winWidth, winHeight, offsetX: number, offsetY: number): paper.Group {
-     //   const rect: paper.Path = paper.Path.Rectangle(new paper.Point(0, 0), new paper.Size(winWidth, winHeight));
-     //   rect.fillColor = 'white';
 
+    public drawGreed(shape: IShape, winWidth, winHeight, offsetX: number, offsetY: number): paper.Group {
         let i: number;
         const high: number = 80;
         const width: number = 80;
@@ -223,14 +184,13 @@ class RenderApi {
         return subMenu;
     }
     
-    /*
-    public drawControl(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
-        const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
+    public drawControl(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
+        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
-        const width: number = 8 * this.getScale();
-        const length: number = 8 * this.getScale();
+        const width: number = 8 * this.zoom;
+        const length: number = 8 * this.zoom;
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -240,22 +200,27 @@ class RenderApi {
         rect.name = 'rect';
         rect.fillColor = 'yellow';
 
-        const result: paper.Group = new paper.Group([rect]);
-        result.onMouseEnter = () => {
-            rect.fillColor = 'lightblue';
-        };
-        result.onMouseLeave = () => {
-            rect.fillColor = 'yellow';
-        };
-        shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
-        if (this._menu) {
-            result.insertBelow(this._menu);
+        let result: paper.Group;
+        if (shape.renderObject && shape.renderObject.children[0]) {
+            rect.insertBelow(shape.renderObject);
+            shape.renderObject.children[0].remove();
+            shape.renderObject.addChild(rect);
+        } else {
+            result = new paper.Group([rect]);
+            result.onMouseEnter = () => {
+                shape.renderObject.children[0].fillColor = 'lightblue';
+            };
+            result.onMouseLeave = () => {
+                shape.renderObject.children[0].fillColor = 'yellow';
+            };
+            shape.renderObject = result;
+            if (this._menu) {
+                result.insertBelow(this._menu);
+            }
         }
-
         return result;
-    }*/
+    }
 
     public reDrawOuterWall(shape: IShape, offsetX: number, offsetY: number): paper.Group {
         const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
@@ -282,29 +247,30 @@ class RenderApi {
         text.justification = 'center';
         text.visible = false;
         */
-        const result: paper.Group = new paper.Group([rect]);
-        result.onMouseEnter = () => {
-            rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
-            // text.content = getShapeLenght(shape.coord);
-            //  text.visible = true;
-        };
-        result.onMouseLeave = () => {
-            rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
-            // text.visible = false;
-        };
 
-        if (shape.renderObject) {
-            result.insertBelow(shape.renderObject);
-            shape.renderObject.remove();
+        let result: paper.Group;
+        if (shape.renderObject && shape.renderObject.children[0]) {
+            rect.insertBelow(shape.renderObject);
+            shape.renderObject.children[0].remove();
+            shape.renderObject.addChild(rect);
+        } else {
+            result = new paper.Group([rect]);
+            result.onMouseEnter = () => {
+                shape.renderObject.children[0].fillColor = new paper.Color(0, 0.45, 1, 0.5);
+                // text.content = getShapeLenght(shape.coord);
+                //  text.visible = true;
+            };
+            result.onMouseLeave = () => {
+                shape.renderObject.children[0].fillColor = new paper.Color(1, 0.45, 0, 0.5);
+                // text.visible = false;
+            };
+            shape.renderObject = result;
+            //result.pivot = new paper.Point(result.position.x, result.position.y);
+
+            if (this._menu) {
+                result.insertBelow(this._menu);
+            }
         }
-
-        shape.renderObject = result;
-        //result.pivot = new paper.Point(result.position.x, result.position.y);
-
-        if (this._menu) {
-            result.insertBelow(this._menu);
-        }
-
         return result;
     }
 

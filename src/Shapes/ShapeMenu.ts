@@ -6,4 +6,5 @@ class ShapeMenu implements IShape {
     public childrens: Array<IShape>;
     public valid: boolean;
     public renderObject: paper.Group;
+    public parent: IShape;
 }

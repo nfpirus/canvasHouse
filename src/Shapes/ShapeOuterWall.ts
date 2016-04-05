@@ -6,9 +6,11 @@ class ShapeOuterWall implements IShape {
     public childrens: Array<IShape>;
     public valid: boolean;
     public renderObject: paper.Group;
+    public parent: IShape;
 
     constructor(point1: IPoint, point2: IPoint) {
         this.point1 = point1;
         this.point2 = point2;
+        this.childrens = new Array();
     }
 }

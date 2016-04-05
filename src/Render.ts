@@ -11,8 +11,10 @@ class Render {
     private _greed: IShape = new ShapeMenu();
     private _center: paper.Point;
 
+
     public selected: IShape = null;
     private _selectedMode: boolean = true;
+    private _selectedPoint: IPoint = new paper.Point(0, 0);
 
     private _positionStartX: number;
     private _positionStartY: number;
@@ -50,7 +52,8 @@ class Render {
 
         this._ctx = this._canvas.getContext('2d');
         paper.setup(this._canvas);
-
+        const rect: paper.Path = paper.Path.Rectangle(new paper.Point(0, 0), new paper.Size(window.innerWidth, window.innerHeight));
+        rect.fillColor = 'white';
         
         this.mouseDetect();
         this._center = new paper.Point(this._canvas.width / 2, this._canvas.height / 2);
@@ -59,7 +62,8 @@ class Render {
 
 
         this._events = new Events(this);
-        this._events.addMouseMoveListener(this.shapeMove);
+        this._events.addMouseMoveListener(this.moveShapeListener);
+
     }
 
     public set zoom(value: number) {
@@ -75,61 +79,54 @@ class Render {
         return this._renderApi;
     }
 
-    private drawShape(shape: IShape): void {
-        if (shape.type === 1) {
-            this.renderApi.reDrawOuterWall(shape, this._offsetX, this._offsetY);
-        }
-
-        /*
-        shape.renderObject.position = new paper.Point(shape.coordDraw.x + this._offsetX, shape.coordDraw.y + this._offsetY);
-        if (shape.childrens) {
-            shape.childrens.forEach((child: IShape) => this.drawShape(child));
-        }*/
-
-    }
-
-    private drawByZoom(): void {
-        this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item));
+    private reDraw(): void {
+        this._shapes.forEach((item: IShape) => this.reDrawShape(item));
         this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, this._offsetX, this._offsetY);
-      //  this.drawShapeByZoom(this._greed, scale);
+        paper.project.view.update();
     }
 
-    private drawShapeByZoom(shape: IShape): void {
+    private reDrawShape(shape: IShape): void {
         if (shape.type === 1) {
             this.renderApi.reDrawOuterWall(shape, this._offsetX, this._offsetY);
         }
+        if (shape.type === 11 || shape.type === 12) {
+            this.renderApi.drawControl(shape, this._offsetX, this._offsetY);
+        }
         if (shape.childrens) {
-            shape.childrens.forEach((child: IShape, i: number) => this.drawShapeByZoom(child));
+            shape.childrens.forEach((child: IShape) => this.reDrawShape(child));
         }
     }
 
+    private moveShape(shape: IShape, moveX: number, moveY: number): void {
+        shape.point1.x = shape.point1.x + moveX / this._zoom;
+        shape.point2.x = shape.point2.x + moveX / this._zoom;
+        shape.point1.y = shape.point1.y + moveY / this._zoom;
+        shape.point2.y = shape.point2.y + moveY / this._zoom;
+        this.reDrawShape(shape);
+        if (shape.childrens) {
+            shape.childrens.forEach((child: IShape, i: number) => this.moveShape(child, moveX, moveY));
+        }
+    }
 
-    private shapeMove(event: any, link): void {
+    private moveShapeListener(event: any, link): void {
         if (link.selected && link._selectedMode) {
-            /*
-            link.selected.renderObject.position = event.point;
-            link.selected.coordDraw = link.setCoordDraw(event.point);*/
-            /*
-            if (link.selected.childrens) {
-                link.selected.childrens.forEach((child: IShape, i: number) => {
-                    if (child.type === 0) {
-                        let x: number;
-                        let y: number;
-                        let segments: Array<paper.Segment>;
-                        segments = link.selected.renderObject.firstChild.segments;
-                        x = (segments[2 * i].point.x + segments[4 - 2 * i - 1].point.x) / 2;
-                        y = (segments[2 * i].point.y + segments[4 - 2 * i - 1].point.y) / 2;
+            const curentPoint: paper.Point = new paper.Point(event.point.x - link._offsetX * link._zoom, event.point.y - link._offsetY * link._zoom);
+            const moveX: number = curentPoint.x - link._selectedPoint.x;
+            const moveY: number = curentPoint.y - link._selectedPoint.y;
 
-                        child.renderObject.firstChild.position = new paper.Point(x, y);
-                        child.coordDraw = link.setCoordDraw(new paper.Point(x, y));
-                    } else {
-                        child.renderObject.position = event.point;
-                        child.coordDraw = link.setCoordDraw(event.point);
-                    }
-                });
+            link.moveShape(link.selected, moveX, moveY);
+            
+            if (link.selected.type == 11) {
+                link.selected.parent.point1.x = link.selected.parent.point1.x + moveX / link._zoom;
+                link.selected.parent.point1.y = link.selected.parent.point1.y + moveY / link._zoom;
+                link.reDrawShape(link.selected.parent);
             }
-            */
-            // TODO: Realize set this.selected.coord
+            if (link.selected.type == 12) {
+                link.selected.parent.point2.x = link.selected.parent.point2.x + moveX / link._zoom;
+                link.selected.parent.point2.y = link.selected.parent.point2.y + moveY / link._zoom;
+                link.reDrawShape(link.selected.parent);
+            }            
+            link._selectedPoint = curentPoint;
         }
     }
 
@@ -184,8 +181,8 @@ class Render {
 
         if (type === 1) {
             newShape = new ShapeOuterWall(this._renderApi.originalPosition(position.x1, position.y1), this._renderApi.originalPosition(position.x2, position.y2));
-          //  control1 = new ShapeControl(position);
-         //   control2 = new ShapeControl(invertPosition);
+            control1 = new ShapeControl(this._renderApi.originalPosition(position.x1, position.y1), this._renderApi.originalPosition(position.x2, position.y2));
+            control2 = new ShapeControl(this._renderApi.originalPosition(position.x2, position.y2), this._renderApi.originalPosition(position.x1, position.y1));
             this.renderApi.reDrawOuterWall(newShape, this._offsetX, this._offsetY);
             this._shapes.push(newShape);
         }/*
@@ -227,34 +224,52 @@ class Render {
         if (type === 7) {
             newShape = new ShapeDoorWay(position);
             this.renderApi.drawDoorWay(newShape);
-        }
-        if (control1 && control2) {
-            this.renderApi.drawControl(control1);
-            this.renderApi.drawControl(control2);
-
-            newShape.childrens.push(control1);
-            //cause unexpected troubles
-            //newShape.renderObject.addChild(control1.renderObject);
-
-            newShape.childrens.push(control2);
-            //newShape.renderObject.addChild(control2.renderObject);
         }*/
+        if (control1 && control2) {
+            this.renderApi.drawControl(control1, this._offsetX, this._offsetY);
+            this.renderApi.drawControl(control2, this._offsetX, this._offsetY);
+
+            control1.type = 11;
+            control2.type = 12;
+            newShape.childrens.push(control1);
+            newShape.childrens.push(control2);
+            control1.parent = newShape;
+            control2.parent = newShape;
+            control1.renderObject.insertAbove(newShape.renderObject);
+            control2.renderObject.insertAbove(newShape.renderObject);
+
+            control1.renderObject.onMouseDown = (event: any) => {
+                this._selectedPoint.x = event.point.x - this._offsetX * this._zoom;
+                this._selectedPoint.y = event.point.y - this._offsetY * this._zoom;
+                this.selected = control1;
+            };
+            control2.renderObject.onMouseDown = (event: any) => {
+                this._selectedPoint.x = event.point.x - this._offsetX * this._zoom;
+                this._selectedPoint.y = event.point.y - this._offsetY * this._zoom;
+                this.selected = control2;
+            };
+            control1.renderObject.onMouseUp = () => {
+                this.selected = null;
+            };
+            control2.renderObject.onMouseUp = () => {
+                this.selected = null;
+            };
+        }
 
         newShape.type = type;
-        newShape.renderObject.onMouseDown = () => {
-           this.selected = newShape;
+        newShape.renderObject.onMouseDown = (event: any) => {
+            this._selectedPoint.x = event.point.x - this._offsetX * this._zoom;
+            this._selectedPoint.y = event.point.y - this._offsetY * this._zoom;
+            this.selected = newShape;
         };
         newShape.renderObject.onMouseUp = () => {
             this.selected = null;
         };
+
         return newShape;
     }
 
-    private setCoordDraw(point: IPoint): IPoint {
-        return new paper.Point(point.x - this._offsetX, point.y - this._offsetY);
-    }
-
-
+// ---------------------------------
     private _drawWallMouseDownHandler;
     private _drawWallMouseMoveHandler;
 
@@ -404,11 +419,11 @@ class Render {
             this._mouseVelocityX.push(Math.round((this._mousePathX[this._mousePathX.length - 2] - this._positionCurrentX) / (this._mouseTimeMove[this._mouseTimeMove.length - 2] - this._mouseTimeMove[this._mouseTimeMove.length - 1])));
             this._mouseVelocityY.push(Math.round((this._mousePathY[this._mousePathY.length - 2] - this._positionCurrentY) / (this._mouseTimeMove[this._mouseTimeMove.length - 2] - this._mouseTimeMove[this._mouseTimeMove.length - 1])));
 
-            this._differenceX = this._positionCurrentX - this._positionStartX;
+            this._differenceX = (this._positionCurrentX - this._positionStartX) / this.zoom;
             this._offsetX = this._offsetX + this._differenceX + this._mouseVelocityX[this._mouseVelocityX.length - 1];
             this._positionStartX = this._positionCurrentX;
 
-            this._differenceY = this._positionCurrentY - this._positionStartY;
+            this._differenceY = (this._positionCurrentY - this._positionStartY) / this.zoom;
             this._offsetY = this._offsetY + this._differenceY + this._mouseVelocityY[this._mouseVelocityY.length - 1];
             this._positionStartY = this._positionCurrentY;
         }
@@ -428,7 +443,6 @@ class Render {
         }
         this._maxMouseMove = Math.max(Math.abs(this._maxMouseMoveX), Math.abs(this._maxMouseMoveY));
         this._maxMouseMove = Math.min(this._maxMouseMove, this._animationBound);
-        
     }
 
     private stopPostAnimation(): void {
@@ -440,21 +454,12 @@ class Render {
     private mouseUpListener(e: MouseEvent): void {
         this._delta = 0;
         this._mouseDown = false;
-        this.get_maxMouseMove();
+        this.stopPostAnimation();
+        //this.get_maxMouseMove();
     }
 
     private mouseOutListener(e: MouseEvent): void {
         this._mouseDown = false;
-    }
-
-    private reDrawStage(): void {        
-        this._shapes.forEach((item: IShape) => this.drawShape(item));
-        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, this._offsetX, this._offsetY);
-
-      //  this._greed.renderObject.position.x = this._greed.point1.x + this._offsetX;
-       // this._greed.renderObject.position.y = this._greed.point1.y + this._offsetY;
-       // this.drawShape(this._greed);        
-        paper.project.view.update();
     }
 
     private moveStage(): void {
@@ -463,11 +468,11 @@ class Render {
                 this.stopPostAnimation();
                 return;
             }
-            this._delta++;
+            this._delta = this._delta;
             this._offsetX = Math.round(this._offsetX + (this._differenceX + this._maxMouseMoveX) / this._delta);
             this._offsetY = Math.round(this._offsetY + (this._differenceY + this._maxMouseMoveY) / this._delta);
         }
-        this.reDrawStage();
+        this.reDraw();
         this._requestAnimationFrameID = requestAnimationFrame(this.moveStage.bind(this));
     }
 
@@ -491,10 +496,8 @@ class Render {
             this.zoom = this.zoom + 0.25;
         } else if (e.deltaY < 0 && this.zoom > 0.25){
             this.zoom = this.zoom - 0.25;
-        }
-        
-        this.drawByZoom();
-        paper.project.view.update();
+        }        
+        this.reDraw();
     }
 
     public mouseDetect(): void {
