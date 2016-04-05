@@ -55,7 +55,7 @@ class Render {
         this.mouseDetect();
         this._center = new paper.Point(this._canvas.width / 2, this._canvas.height / 2);
         this._renderApi = new RenderApi(this._zoom, this._center);
-        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height);
+        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, 0, 0);
 
 
         this._events = new Events(this);
@@ -90,6 +90,7 @@ class Render {
 
     private drawByZoom(): void {
         this._shapes.forEach((item: IShape) => this.drawShapeByZoom(item));
+        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, this._offsetX, this._offsetY);
       //  this.drawShapeByZoom(this._greed, scale);
     }
 
@@ -185,7 +186,7 @@ class Render {
             newShape = new ShapeOuterWall(this._renderApi.originalPosition(position.x1, position.y1), this._renderApi.originalPosition(position.x2, position.y2));
           //  control1 = new ShapeControl(position);
          //   control2 = new ShapeControl(invertPosition);
-            this.renderApi.drawOuterWall(newShape, this._offsetX, this._offsetY);
+            this.renderApi.reDrawOuterWall(newShape, this._offsetX, this._offsetY);
             this._shapes.push(newShape);
         }/*
         if (type === 2) {
@@ -448,8 +449,10 @@ class Render {
 
     private reDrawStage(): void {        
         this._shapes.forEach((item: IShape) => this.drawShape(item));
-        this._greed.renderObject.position.x = this._greed.point1.x + this._offsetX;
-        this._greed.renderObject.position.y = this._greed.point1.y + this._offsetY;
+        this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, this._offsetX, this._offsetY);
+
+      //  this._greed.renderObject.position.x = this._greed.point1.x + this._offsetX;
+       // this._greed.renderObject.position.y = this._greed.point1.y + this._offsetY;
        // this.drawShape(this._greed);        
         paper.project.view.update();
     }

@@ -30,8 +30,6 @@ class RenderApi {
         return result;
     }
 
-
-
     public getNewCord(shape: IShape, center: paper.Point): paper.Point {
         const x1: number = shape.renderObject.position.x - center.x;
         const y1: number = shape.renderObject.position.y - center.y;
@@ -87,9 +85,9 @@ class RenderApi {
         return result;
     }
     
-    public drawGreed(shape: IShape, winWidth, winHeight): paper.Group {
-        const rect: paper.Path = paper.Path.Rectangle(new paper.Point(0, 0), new paper.Size(winWidth, winHeight));
-        rect.fillColor = 'white';
+    public drawGreed(shape: IShape, winWidth, winHeight, offsetX: number, offsetY: number): paper.Group {
+     //   const rect: paper.Path = paper.Path.Rectangle(new paper.Point(0, 0), new paper.Size(winWidth, winHeight));
+     //   rect.fillColor = 'white';
 
         let i: number;
         const high: number = 80;
@@ -103,21 +101,31 @@ class RenderApi {
             var myPath = new paper.Path();
             myPath.strokeColor = '#cccccc';
             myPath.strokeWidth = 1;
-            myPath.add(new paper.Point(i * width + 0.5, + 0.5));
-            myPath.add(new paper.Point(i * width + 0.5, highLength + 0.5));
+            const point1: paper.Point = this.newPosition(i * width + 0.5 + offsetX, + 0.5 + offsetY);
+            const point2: paper.Point = this.newPosition(i * width + 0.5 + offsetX, highLength + 0.5 + offsetY);
+            myPath.add(new paper.Point(point1));
+            myPath.add(new paper.Point(point2));
             pool.push(myPath);
         }
         for (i = 0; i <= highElemen; i++) {
             var myPath2 = new paper.Path();
             myPath2.strokeColor = '#cccccc';
             myPath2.strokeWidth = 1;
-            myPath2.add(new paper.Point(0.5, i * high + 0.5));
-            myPath2.add(new paper.Point(widthLength + 0.5, i * high + 0.5));
+            const point1: paper.Point = this.newPosition(0.5 + offsetX, i * high + 0.5 + offsetY);
+            const point2: paper.Point = this.newPosition(widthLength + 0.5 + offsetX, i * high + 0.5 + offsetY);
+            myPath2.add(point1);
+            myPath2.add(point2);
             pool.push(myPath2);
         }
         const result: paper.Group = new paper.Group(pool);
+
+        if (shape.renderObject) {
+            result.insertBelow(shape.renderObject);
+            shape.renderObject.remove();
+        }
+
         shape.renderObject = result;
-        shape.point1 = new paper.Point(result.position.x, result.position.y)
+        shape.point1 = new paper.Point(result.position.x, result.position.y);
        // shape.coordDraw = new paper.Point(result.position.x, result.position.y);
     
         return result;
@@ -284,8 +292,10 @@ class RenderApi {
             // text.visible = false;
         };
 
-        result.insertBelow(shape.renderObject);
-        shape.renderObject.remove();
+        if (shape.renderObject) {
+            result.insertBelow(shape.renderObject);
+            shape.renderObject.remove();
+        }
 
         shape.renderObject = result;
         //result.pivot = new paper.Point(result.position.x, result.position.y);
@@ -296,7 +306,8 @@ class RenderApi {
 
         return result;
     }
-
+    
+    /*
     public drawOuterWall(shape: IShape, offsetX: number, offsetY: number): paper.Group {
         const point1: paper.Point = new paper.Point(shape.point1.x + offsetX, shape.point1.y + offsetY);
         const point2: paper.Point = new paper.Point(shape.point2.x + offsetX, shape.point2.y + offsetY);
@@ -312,7 +323,7 @@ class RenderApi {
         rect.name = 'rect';
         rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
         rect.rotate(vect.angle - 90, point1);
-        /*
+        
         let text: paper.TextItem = new paper.PointText(new paper.Point((coordDraw.x1 + coordDraw.x2) / 2, (coordDraw.y1 + coordDraw.y2) / 2));
         text.name = 'text';
         text.position.y += width/3;
@@ -321,7 +332,7 @@ class RenderApi {
         text.content = 'Wall';
         text.justification = 'center';
         text.visible = false;
-        */
+        
         const result: paper.Group = new paper.Group([rect]);
         result.onMouseEnter = () => {
             rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
@@ -342,6 +353,8 @@ class RenderApi {
 
         return result;
     }
+    */
+
     /*
     public drawInnerWall(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
