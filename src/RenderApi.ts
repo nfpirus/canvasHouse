@@ -187,6 +187,9 @@ class RenderApi {
         if (shape.type === 1) {
             this.reDrawOuterWall(shape, offsetX, offsetY);
         }
+        if (shape.type === 3) {
+            this.drawColumn(shape, offsetX, offsetY);
+        }
         if (shape.type === 6) {
             this.drawDoor(shape, offsetX, offsetY);
         }
@@ -325,8 +328,6 @@ class RenderApi {
 
     public drawColumn(shape: IShape, offsetX: number, offsetY: number): paper.Group {
         const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
-        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
-        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
         const width: number = 20 * this.zoom;
         const length: number = 20 * this.zoom;
@@ -339,21 +340,25 @@ class RenderApi {
         rect.name = 'rect';
         rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
 
-        const result: paper.Group = new paper.Group([rect]);
-      //  result.rotate(vect.angle - 90, point1);
-        result.onMouseEnter = () => {
-            rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
-        };
-        result.onMouseLeave = () => {
-            rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
-        };        
-        shape.renderObject = result;
-       // shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+        let result: paper.Group;
+        if (shape.renderObject && shape.renderObject.children[0]) {
+            rect.insertBelow(shape.renderObject);
+            shape.renderObject.children[0].remove();
+            shape.renderObject.addChild(rect);
+        } else {
+            result = new paper.Group([rect]);
+            result.onMouseEnter = () => {
+                shape.renderObject.children[0].fillColor = new paper.Color(0, 0.45, 1, 0.5);
+            };
+            result.onMouseLeave = () => {
+                shape.renderObject.children[0].fillColor = new paper.Color(1, 0.45, 0, 0.5);
+            };
+            shape.renderObject = result;
 
-        if (this._menu) {
-            result.insertBelow(this._menu);
+            if (this._menu) {
+                result.insertBelow(this._menu);
+            }
         }
-
         return result;
     }
 

@@ -39,6 +39,7 @@
     <TypeScriptCompile Include="src\Render.ts" />
     <TypeScriptCompile Include="src\RenderApi.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeControl.ts" />
+    <TypeScriptCompile Include="src\Shapes\Shape.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeMenu.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeColumn.ts" />
     <TypeScriptCompile Include="src\Shapes\ShapeDoor.ts" />

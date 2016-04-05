@@ -10,11 +10,10 @@ class Render {
     private _renderApi: RenderApi;
     private _greed: IShape = new ShapeMenu();
     private _center: paper.Point;
-
-
     public selected: IShape = null;
     private _selectedMode: boolean = true;
     private _selectedPoint: IPoint = new paper.Point(0, 0);
+    private _events: Events;
 
     private _positionStartX: number;
     private _positionStartY: number;
@@ -40,8 +39,6 @@ class Render {
     private _animationBound: number = 50;
     private _durationPostAnimation: number = 10;
 
-    private _events: Events;
-
     constructor(stageContainer: HTMLDivElement, shapes: Array<IShape>) {        
         this._shapes = shapes;
         this._canvas = document.createElement('canvas');
@@ -61,7 +58,6 @@ class Render {
 
         this._events = new Events(this);
         this._events.addMouseMoveListener(this.moveShapeListener);
-
     }
 
     public set zoom(value: number) {
@@ -70,12 +66,12 @@ class Render {
     }
     
     private reDraw(): void {
-        this._shapes.forEach((item: IShape) => this.reDrawShape(item));
+        this._shapes.forEach((item: IShape) => this.renderShape(item));
         this._renderApi.drawGreed(this._greed, this._canvas.width, this._canvas.height, this._offsetX, this._offsetY);
         paper.project.view.update();
     }
 
-    private reDrawShape(shape: IShape): void {
+    private renderShape(shape: IShape): void {
         this._renderApi.renderShape(shape, this._offsetX, this._offsetY);
     }
 
@@ -84,7 +80,7 @@ class Render {
         shape.point2.x = shape.point2.x + moveX / this._zoom;
         shape.point1.y = shape.point1.y + moveY / this._zoom;
         shape.point2.y = shape.point2.y + moveY / this._zoom;
-        this.reDrawShape(shape);
+        this.renderShape(shape);
         if (shape.childrens) {
             shape.childrens.forEach((child: IShape, i: number) => this.moveShape(child, moveX, moveY));
         }
@@ -101,19 +97,15 @@ class Render {
             if (link.selected.type == 11) {
                 link.selected.parent.point1.x = link.selected.parent.point1.x + moveX / link._zoom;
                 link.selected.parent.point1.y = link.selected.parent.point1.y + moveY / link._zoom;
-                link.reDrawShape(link.selected.parent);
+                link.renderShape(link.selected.parent);
             }
             if (link.selected.type == 12) {
                 link.selected.parent.point2.x = link.selected.parent.point2.x + moveX / link._zoom;
                 link.selected.parent.point2.y = link.selected.parent.point2.y + moveY / link._zoom;
-                link.reDrawShape(link.selected.parent);
+                link.renderShape(link.selected.parent);
             }
             link._selectedPoint = curentPoint;
         }
-    }
-
-    public np(point: IPoint): IPoint {
-        return new paper.Point(point.x, point.y);
     }
 
     public createShape(type: number, position: ICoordinates): IShape {
@@ -125,9 +117,9 @@ class Render {
 
         if (type === 1) {
             newShape = new ShapeOuterWall(point1, point2);
-            control1 = new ShapeControl(this.np(point1), this.np(point2));
-            control2 = new ShapeControl(this.np(point2), this.np(point1));
-            this._renderApi.reDrawOuterWall(newShape, this._offsetX, this._offsetY);
+            control1 = new ShapeControl(point1, point2);
+            control2 = new ShapeControl(point2, point1);
+            this.renderShape(newShape);
             this._shapes.push(newShape);
         }/*
         if (type === 2) {
@@ -139,8 +131,8 @@ class Render {
             this._shapes.push(newShape);
         }*/
         if (type === 3) {
-            newShape = new ShapeColumn(point1, point1);
-            this._renderApi.drawColumn(newShape, this._offsetX, this._offsetY);
+            newShape = new ShapeColumn(point1, point2);
+            this.renderShape(newShape);
             this._shapes.push(newShape);
         }/*
         if (type === 4) {
@@ -160,7 +152,7 @@ class Render {
             const correctionPoint: IPoint = this._renderApi.getNormal(pointA, pointB, point1);
             const point3: IPoint = new paper.Point(point1.x + correctionPoint.x, point1.y + correctionPoint.y);
             newShape = new ShapeDoor(point3, pointB);
-            this._renderApi.drawDoor(newShape, this._offsetX, this._offsetY);
+            this.renderShape(newShape);
         }/*
         if (type === 7) {
             newShape = new ShapeDoorWay(position);
