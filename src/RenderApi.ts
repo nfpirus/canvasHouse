@@ -222,6 +222,7 @@ class RenderApi {
         subMenu.addChildren(subMenuItems);
         return subMenu;
     }
+    
     /*
     public drawControl(shape: IShape): paper.Group {
         const coordDraw: ICoordinates = shape.coord;
@@ -306,63 +307,13 @@ class RenderApi {
 
         return result;
     }
-    
-    /*
-    public drawOuterWall(shape: IShape, offsetX: number, offsetY: number): paper.Group {
-        const point1: paper.Point = new paper.Point(shape.point1.x + offsetX, shape.point1.y + offsetY);
-        const point2: paper.Point = new paper.Point(shape.point2.x + offsetX, shape.point2.y + offsetY);
+
+    public drawInnerWall(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
         const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
         const width: number = 20 * this.zoom;
-        const length: number = point2.getDistance(point1, false);
-
-        let size: paper.Size = new paper.Size(width, length);
-        let rect: paper.Path = paper.Path.Rectangle(point1, size);
-        rect.position.x -= width / 2;
-        rect.strokeColor = 'black';
-        rect.name = 'rect';
-        rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
-        rect.rotate(vect.angle - 90, point1);
-        
-        let text: paper.TextItem = new paper.PointText(new paper.Point((coordDraw.x1 + coordDraw.x2) / 2, (coordDraw.y1 + coordDraw.y2) / 2));
-        text.name = 'text';
-        text.position.y += width/3;
-        text.fontSize = 20;
-        text.fontWeight = 'bold';
-        text.content = 'Wall';
-        text.justification = 'center';
-        text.visible = false;
-        
-        const result: paper.Group = new paper.Group([rect]);
-        result.onMouseEnter = () => {
-            rect.fillColor = new paper.Color(0, 0.45, 1, 0.5);
-            // text.content = getShapeLenght(shape.coord);
-            //  text.visible = true;
-        };
-        result.onMouseLeave = () => {
-            rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
-            // text.visible = false;
-        };
-
-        shape.renderObject = result;
-        //result.pivot = new paper.Point(result.position.x, result.position.y);
-
-        if (this._menu) {
-            result.insertBelow(this._menu);
-        }
-
-        return result;
-    }
-    */
-
-    /*
-    public drawInnerWall(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
-        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
-
-        const width: number = 20 * this.getScale();
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -383,7 +334,7 @@ class RenderApi {
             // TODO: Realize hide Length
         };    
         shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+      //  shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
             result.insertBelow(this._menu);
@@ -392,14 +343,13 @@ class RenderApi {
         return result;
     }
 
-    public drawColumn(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1 + 0.5, coordDraw.y1 + 0.5);
-       // const point2: paper.Point = new paper.Point(coordDraw.x2 + 0.5, coordDraw.y2 + 0.5);
-     //   const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+    public drawColumn(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
+        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
-        const width: number = 20 * this.getScale();
-        const length: number = 20 * this.getScale();
+        const width: number = 20 * this.zoom;
+        const length: number = 20 * this.zoom;
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -418,7 +368,7 @@ class RenderApi {
             rect.fillColor = new paper.Color(1, 0.45, 0, 0.5);
         };        
         shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+       // shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
             result.insertBelow(this._menu);
@@ -427,13 +377,12 @@ class RenderApi {
         return result;
     }
 
-    public drawPartition(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
-        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+    public drawPartition(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
+        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
-        const width: number = 8 * this.getScale();
+        const width: number = 8 * this.zoom;
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -452,7 +401,7 @@ class RenderApi {
             rect.strokeColor = 'black';
         };    
         shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+     //   shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
             result.insertBelow(this._menu);
@@ -461,14 +410,13 @@ class RenderApi {
         return result;
     }
 
-    public drawWindow(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
-        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+    public drawWindow(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
+        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
-        const width: number = 20 * this.getScale();
-        const smallwidth: number = 8 * this.getScale();
+        const width: number = 20 * this.zoom;
+        const smallwidth: number = 8 * this.zoom;
         const length: number = point2.getDistance(point1, false);
 
         let size: paper.Size = new paper.Size(width, length);
@@ -496,7 +444,7 @@ class RenderApi {
             smallRect.strokeColor = 'black';
         };    
         shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+        //shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
             result.insertBelow(this._menu);
@@ -505,15 +453,13 @@ class RenderApi {
         return result;
     }
 
-    public drawDoor(shape: IShape, angle: number): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-    //    const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
-    //    
+    public drawDoor(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
 
-        const width: number = 20 * this.getScale();
-        const smallwidth: number = 8 * this.getScale();
-        const length: number = 80 * this.getScale();;//point2.getDistance(point1, false);
+        const width: number = 20 * this.zoom;
+        const smallwidth: number = 8 * this.zoom;
+        const length: number = 80 * this.zoom;
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -532,7 +478,7 @@ class RenderApi {
         smallRect.fillColor = new paper.Color(0.72, 0.34, 0.02, 0.5);
 
         const result: paper.Group = new paper.Group([rect, smallRect]);
-        result.rotate(angle - 90, point1);
+      //  result.rotate(angle - 90, point1);
         result.onMouseEnter = () => {
             rect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
             smallRect.strokeColor = new paper.Color(0, 0.45, 1, 0.5);
@@ -542,7 +488,7 @@ class RenderApi {
             smallRect.strokeColor = 'black';
         };
         shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+       // shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
             result.insertBelow(this._menu);
@@ -551,14 +497,13 @@ class RenderApi {
         return result;
     }
 
-    public drawDoorWay(shape: IShape): paper.Group {
-        const coordDraw: ICoordinates = shape.coord;
-        const point1: paper.Point = new paper.Point(coordDraw.x1, coordDraw.y1);
-        const point2: paper.Point = new paper.Point(coordDraw.x2, coordDraw.y2);
-        const vect: paper.Point = new paper.Point(coordDraw.x2 - coordDraw.x1, coordDraw.y2 - coordDraw.y1);
+    public drawDoorWay(shape: IShape, offsetX: number, offsetY: number): paper.Group {
+        const point1: paper.Point = this.newPosition(shape.point1.x + offsetX, shape.point1.y + offsetY);
+        const point2: paper.Point = this.newPosition(shape.point2.x + offsetX, shape.point2.y + offsetY);
+        const vect: paper.Point = new paper.Point(point2.x - point1.x, point2.y - point1.y);
 
-        const width: number = 20 * this.getScale();
-        const length: number = point2.getDistance(point1, false) * this.getScale();
+        const width: number = 20 * this.zoom;
+        const length: number = point2.getDistance(point1, false) * this.zoom;
 
         let size: paper.Size = new paper.Size(width, length);
         let rect: paper.Path = paper.Path.Rectangle(point1, size);
@@ -576,7 +521,7 @@ class RenderApi {
             rect.strokeColor = 'black';
         };  
         shape.renderObject = result;
-        shape.coordDraw = new paper.Point(result.position.x, result.position.y);
+      //  shape.coordDraw = new paper.Point(result.position.x, result.position.y);
 
         if (this._menu) {
             result.insertBelow(this._menu);
@@ -584,5 +529,5 @@ class RenderApi {
 
         return result;
     }
-    */
+
 }
