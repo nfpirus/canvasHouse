@@ -94,14 +94,14 @@ class Render {
 
             link.moveShape(link.selected, moveX, moveY);
             
-            if (link.selected.type == 11) {
-                link.selected.parent.point1.x = link.selected.parent.point1.x + moveX / link._zoom;
-                link.selected.parent.point1.y = link.selected.parent.point1.y + moveY / link._zoom;
+            if (link.selected.type === 11) {
+                link.selected.parent.point1.x += moveX / link._zoom;
+                link.selected.parent.point1.y += moveY / link._zoom;
                 link.renderShape(link.selected.parent);
             }
-            if (link.selected.type == 12) {
-                link.selected.parent.point2.x = link.selected.parent.point2.x + moveX / link._zoom;
-                link.selected.parent.point2.y = link.selected.parent.point2.y + moveY / link._zoom;
+            if (link.selected.type === 12) {
+                link.selected.parent.point2.x +=  moveX / link._zoom;
+                link.selected.parent.point2.y += moveY / link._zoom;
                 link.renderShape(link.selected.parent);
             }
             link._selectedPoint = curentPoint;
@@ -361,22 +361,6 @@ class Render {
         }
     }
 
-    private get_maxMouseMove(): void {
-        this._maxMouseMoveX = 0;
-        this._maxMouseMoveY = 0;
-        for (var i: number = 1; i < Math.min(this._mouseVelocityX.length, this._mouseDetectBound); i++) {
-            this._maxMouseMoveX = (Math.abs(this._maxMouseMoveX) < Math.abs(this._mouseVelocityX[this._mouseVelocityX.length - i])) ? this._mouseVelocityX[this._mouseVelocityX.length - i] : this._maxMouseMoveX;
-            this._maxMouseMoveY = (Math.abs(this._maxMouseMoveY) < Math.abs(this._mouseVelocityY[this._mouseVelocityY.length - i])) ? this._mouseVelocityY[this._mouseVelocityY.length - i] : this._maxMouseMoveY;
-        }
-
-        if (this._mouseVelocityX.length < this._mouseDetectBound * 2) {
-            this._maxMouseMoveX = this._maxMouseMoveX * this._mouseShortMoveMultiplication;
-            this._maxMouseMoveY = this._maxMouseMoveY * this._mouseShortMoveMultiplication;
-        }
-        this._maxMouseMove = Math.max(Math.abs(this._maxMouseMoveX), Math.abs(this._maxMouseMoveY));
-        this._maxMouseMove = Math.min(this._maxMouseMove, this._animationBound);
-    }
-
     private stopPostAnimation(): void {
         this._mouseTimeMove = []; this._mousePathX = []; this._mousePathY = []; this._mouseVelocityX = []; this._mouseVelocityY = [];
         this._positionStartX = 0; this._positionStartY = 0; this._differenceX = 0; this._differenceY = 0;
@@ -387,7 +371,6 @@ class Render {
         this._delta = 0;
         this._mouseDown = false;
         this.stopPostAnimation();
-        //this.get_maxMouseMove();
     }
 
     private mouseOutListener(e: MouseEvent): void {
@@ -400,7 +383,7 @@ class Render {
                 this.stopPostAnimation();
                 return;
             }
-            this._delta = this._delta;
+            this._delta++;
             this._offsetX = Math.round(this._offsetX + (this._differenceX + this._maxMouseMoveX) / this._delta);
             this._offsetY = Math.round(this._offsetY + (this._differenceY + this._maxMouseMoveY) / this._delta);
         }
@@ -425,9 +408,9 @@ class Render {
 
     private wheelListener(e: WheelEvent): void {        
         if (e.deltaY > 0 && this._zoom < 2) {
-            this.zoom = this._zoom + 0.25;
-        } else if (e.deltaY < 0 && this._zoom > 0.25){
-            this.zoom = this._zoom - 0.25;
+            this.zoom = this._zoom + 0.1;
+        } else if (e.deltaY < 0 && this._zoom > 0.5){
+            this.zoom = this._zoom - 0.1;
         }        
         this.reDraw();
     }

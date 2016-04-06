@@ -15,7 +15,7 @@ class RenderApi {
         return Math.floor(result).toString();
     }
 
-    public originalPosition(x: number, y: number): paper.Point {
+    private getPosition(x: number, y: number, scale): paper.Point {
         const cx: number = this.center.x;
         const cy: number = this.center.y;
         const x1: number = x - cx;
@@ -24,30 +24,19 @@ class RenderApi {
 
         const cosN: number = x1 / r;
         const sinN: number = y1 / r;
-        const x2: number = cx + r * cosN / this.zoom;
-        const y2: number = cy + r * sinN / this.zoom;
+        const x2: number = cx + r * cosN * scale;
+        const y2: number = cy + r * sinN * scale;
         return new paper.Point(x2, y2);
+    }
+
+    public originalPosition(x: number, y: number): paper.Point {
+        return this.getPosition(x, y, 1/this.zoom);
     }
 
     public newPosition(x: number, y: number): paper.Point {
-        const cx: number = this.center.x;
-        const cy: number = this.center.y;
-        const x1: number = x - cx;
-        const y1: number = y - cy;
-        const r: number = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
-
-        const cosN: number = x1 / r;
-        const sinN: number = y1 / r;
-        const x2: number = cx + r * cosN * this.zoom;
-        const y2: number = cy + r * sinN * this.zoom;
-        return new paper.Point(x2, y2);
+        return this.getPosition(x, y, this.zoom);
     }
 
-    public getPoint(point: IPoint): paper.Point {
-        const result = new paper.Point(point.x, point.y);
-        return result;
-    }
-    
     public drawGreed(shape: IShape, winWidth, winHeight, offsetX: number, offsetY: number): paper.Group {
         let i: number;
         const high: number = 80;
@@ -63,8 +52,8 @@ class RenderApi {
             myPath.strokeWidth = 1;
             const point1: paper.Point = this.newPosition(i * width + 0.5 + offsetX, + 0.5 + offsetY);
             const point2: paper.Point = this.newPosition(i * width + 0.5 + offsetX, highLength + 0.5 + offsetY);
-            myPath.add(new paper.Point(point1));
-            myPath.add(new paper.Point(point2));
+            myPath.add(point1);
+            myPath.add(point2);
             pool.push(myPath);
         }
         for (i = 0; i <= highElemen; i++) {
